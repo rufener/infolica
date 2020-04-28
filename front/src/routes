@@ -10,10 +10,29 @@ import Numeros from './components/Numeros/Numeros.vue'
 import NumerosHistory from './components/Numeros/NumerosHistory.vue'
 import About from './components/About/About.vue'
 import Login from './components/Login/Login.vue'
+import {checkLogged} from '@/services/helper'
 
 const routes = [
-    { path: '/', component: Affaires, redirect:'/affaires' },    
-    { path: '/affaires', component: Affaires },
+    { 
+        path: '/',
+        component: Affaires,
+        redirect:'/affaires',
+        name: 'home'
+        
+    },    
+    { path: '/affaires',
+        component: Affaires,
+        name: 'affaires',
+        beforeEnter(to, from, next) {
+            if(checkLogged()) {
+                console.log("logged", next())
+                next();
+            } else {
+                console.log("login")
+                next({name: 'login'});
+            }
+        }
+    },
     { path: '/affaires/:id', component: AffairesDashboard },
     { path: '/affaires_new', component: NewAffaire },
     { path: '/clients', component: Clients },
@@ -22,7 +41,7 @@ const routes = [
     { path: '/operateurs', component: Operateurs },
     { path: '/operateurs/new', component: OperateursEdit },
     { path: '/operateurs/edit/:id', component: OperateursEdit },
-    { path: '/login', component: Login },
+    { path: '/login', component: Login, name: 'login' },
     { path: '/numeros', component: Numeros },
     { path: '/numeros/:id', component: NumerosHistory },
     { path: '/apropos', component: About }

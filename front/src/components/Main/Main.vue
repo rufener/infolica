@@ -4,7 +4,6 @@
 
 <script>
 import Login from '@/components/Login/Login.vue'
-import {checkLogged} from '@/services/helper'
 
 export default {
   name: 'Main',
@@ -25,7 +24,6 @@ export default {
 
   },
   mounted: function(){
-    checkLogged();
     this.setDefaultDateFormat();
   }
 }

@@ -4,16 +4,18 @@ import axios from 'axios';
 /**
  * Check if the user is logged in
  */
-export const checkLogged = function (component) {
+export const checkLogged = function () {
     var session_user = JSON.parse(localStorage.getItem('infolica_user')) || null;
+    console.log(session_user);
     
-    if(!session_user && component.$router && component.$router.currentRoute && component.$router.currentRoute.path != '/login')
-        component.$router.push('/login');
-    
-    //Set current user functions
-    if(session_user)
+    if(session_user) {
+        console.log("TRUE")
         setCurrentUserFunctions();
-    
+        return true;
+    } else {
+        console.log("FALSE")
+        return false;
+    }
 };
 
 
@@ -33,7 +35,7 @@ export const checkPermission = function (fonction) {
 /*
  * Set current user functions
  */
-export const setCurrentUserFunctions = async function () {    
+export const setCurrentUserFunctions = async function () {
     axios.get(process.env.VUE_APP_API_URL + process.env.VUE_APP_CURRENT_USERS_FUNCTIONS_ENDPOINT,
         {
             withCredentials: true,
@@ -48,8 +50,10 @@ export const setCurrentUserFunctions = async function () {
                     localStorage.setItem('infolica_user', JSON.stringify(session_user));
                 }
             }
+            console.log("SUCCESS USER FONCTION")
             })
         .catch(() => {
+            console.log("KO USER FONCTION")
             //To do message
         })
 };
