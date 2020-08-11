@@ -1,0 +1,14 @@
+.affaireRemarques {
+    width: 100%;
+    float: left;
+}
+
+.affaireRemarques .md-table {
+    width: 70%;
+    margin: auto;
+}
+
+.affaireRemarques .newRemarqueBtn {
+    right: 25px;
+    position: absolute;
+}

@@ -1,0 +1,35 @@
+.newAffaire {
+    width: 50%;
+    margin: auto;
+}
+
+.newAffaire #mapContainer {
+    width: 100%;
+    height: 468px;
+    background-color: grey;
+    margin: auto;
+  }
+ 
+.newAffaire  .mapHeight {
+    height: 500px;
+}
+
+.newAffaire  .autocomplete {
+    margin-top: 30px;
+    z-index: auto;
+}
+
+.newAffaire .immeublesSelectDiv {
+    margin: 0 20px;
+    width: calc(100% - 40px);
+}
+
+.newAffaire .immeublesSelectDiv .expandCollapseBtn{
+    top: 20px;
+    margin-left: 220px;
+    position: absolute;
+}
+
+.newAffaire .modifAffaireActionBtn{
+    margin-top: -10px;
+}

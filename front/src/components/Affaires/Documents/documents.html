@@ -1,0 +1,92 @@
+<div class="documents">
+    <md-card>
+        <!-- Results Header -->
+        <md-card-header>
+            <div class="md-title">
+                <md-card-expand-trigger>
+                    <md-button class="md-icon-button expandCollapseBtn"
+                        @click.native="showUploadDocBtn = !showUploadDocBtn">
+                        <md-icon>keyboard_arrow_down</md-icon>
+                    </md-button>
+                </md-card-expand-trigger>
+                Documents
+                <md-button class="md-primary uploadDocBtn" v-on:click="showUploadDocsDialog = true" v-if="showUploadDocBtn && !affaireReadonly && false">
+                    Charger des documents
+                </md-button>
+            </div>
+        </md-card-header>
+
+        <md-card-expand>
+            <md-card-expand-content>
+                <md-card-content>
+                    
+                    <div style="display: table-cell;">
+                            Dossier de l'affaire: 
+                            <input type="text" id="dossier-affaire" :value="dossier_affaire" style="width: 200px;" readonly>
+                            <md-button class="md-primary md-dense md-center-left" style="vertical-align: middle;" @click="copyToClipboard">copier</md-button>
+                    </div>
+
+                    <div v-if="documents[0]">
+                        <md-table v-model="documents" md-sort="" md-sort-order="desc" md-fixed-header md-card>
+                            <md-table-row slot="md-table-row" slot-scope="{ item }">
+                                <md-table-cell md-label="Nom" md-sort-by="nom">{{ item.nom }}</md-table-cell>
+                                </md-table-cell>
+                                <md-table-cell md-label="Type" md-sort-by="type_doc">{{ item.type_doc }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Création" md-sort-by="creation">{{ item.creation }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Actions" class="actionsCol" v-if="!affaireReadonly">
+                                    <md-button class="md-icon-button md-dense md-primary" @click="downloadFile(item)">
+                                        <md-icon>save_alt</md-icon>
+                                    </md-button>
+
+                                    <md-button class="md-icon-button md-dense md-accent" v-on:click="callDeleteDoc(item.id, item.nom, item.affaire_id)">
+                                        <md-icon>delete</md-icon>
+                                    </md-button>
+                                </md-table-cell>
+                            </md-table-row>
+                        </md-table>
+                    </div>
+                    <div v-else>
+                        <i>Aucun document</i>
+                    </div>
+                </md-card-content>
+
+            </md-card-expand-content>
+        </md-card-expand>
+
+    </md-card>
+
+    <md-dialog :md-active.sync="showUploadDocsDialog">
+        <md-dialog-title>Chargement des documents</md-dialog-title>
+        <md-dialog-content style="padding: 0 10px;">
+            <md-field>
+                <label for="type_document">Type document</label>
+                <md-select name="type_document" id="type_document" v-model="type_document" md-dense>
+                    <md-option v-for="item in types_documents_list" :key="item.id" :value="item.id">{{item.nom}}</md-option>
+                </md-select>
+            </md-field>
+
+            <md-field class="uploadDocFile">
+                <label>Charger un document</label>
+                <md-file v-model="documentFileName" @md-change="handleFileSelect($event)" placeholder="Charger un document" multiple></md-file>
+            </md-field>
+        </md-dialog-content>
+
+        <md-dialog-actions>
+            <md-button class="md-primary" @click="showUploadDocsDialog = false">Annuler</md-button>
+            <md-button class="md-primary" @click="uploadAffaireDocument()">Enregistrer</md-button>
+        </md-dialog-actions>
+    </md-dialog>
+
+    <div>
+        <md-dialog-confirm
+          :md-active.sync="deleteDocActive"
+          md-title="Supprimer le document"
+          :md-content="deleteDocMessage"
+          md-confirm-text="Confirmer"
+          md-cancel-text="Annuler"
+          @md-confirm="onConfirmDeleteDoc"
+          @md-cancel="onCancelDeleteDoc"/>
+      </div>
+</div>

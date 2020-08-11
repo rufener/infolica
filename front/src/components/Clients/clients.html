@@ -1,9 +1,8 @@
 <div class="clients">
-
-   <md-button class="md-raised md-accent newClientBtn" @click="$router.push('/clients/new')">Nouveau client</md-button>
-   </br>
-   </br>
-   </br>
+    <md-toolbar>
+        <h1 style="flex: 1;">Clients</h1>
+        <md-button class="md-raised md-accent" v-if="editClientClientAllowed" @click="$router.push({name: 'ClientsNew'})">Nouveau client</md-button>                    
+    </md-toolbar>
 
    <!-- Search -->
    <md-card>
@@ -22,22 +21,22 @@
        <md-card-expand>
            <md-card-expand-content>
                <md-card-content>
-                   <div class="md-layout md-gutter">
-                       <div class="md-layout-item md-small-size-30">
+                   <div class="md-layout md-gutter md-alignment-top-space-between">
+                       <div class="md-layout-item md-size-30 md-small-size-100">
                            <md-field>
                                <label for="prenom">Prénom</label>
                                <md-input name="prenom" id="prenom" v-model="search.prenom" />
                            </md-field>
                        </div>
 
-                       <div class="md-layout-item md-small-size-30">
+                       <div class="md-layout-item md-size-30 md-small-size-100">
                            <md-field>
                                <label for="nom">Nom</label>
                                <md-input name="nom" id="nom" v-model="search.nom" />
                            </md-field>
                        </div>
 
-                       <div class="md-layout-item md-small-size-30">
+                       <div class="md-layout-item md-size-30 md-small-size-100">
                            <md-field>
                                <label for="entreprise">Entreprise</label>
                                <md-input name="entreprise" id="entreprise" v-model="search.entreprise" />
@@ -45,29 +44,51 @@
                        </div>
                    </div>
 
-                   <div class="md-layout md-gutter">
-                       <div class="md-layout-item md-small-size-30">
-                           <md-field>
-                               <label for="adresse">Adresse</label>
-                               <md-input name="adresse" id="adresse" v-model="search.adresse" />
-                           </md-field>
-                       </div>
+                   <div class="md-layout md-gutter md-alignment-top-space-between">
+                        <div class="md-layout-item md-size-30 md-small-size-100">
+                            <md-field>
+                                <label for="adresse">Adresse</label>
+                                <md-input name="adresse" id="adresse" v-model="search.adresse" />
+                            </md-field>
+                        </div>
 
-                       <div class="md-layout-item md-small-size-30">
-                           <md-field>
-                               <label for="localite">Localité</label>
-                               <md-input type="email" name="localite" id="localite" v-model="search.localite" />
-                           </md-field>
-                       </div>
+                        <div class="md-layout-item md-layout md-gutter md-size-30" style="padding: 0px;">
+                            <div class="md-layout-item md-size-30 md-small-size-30">
+                                <md-field>
+                                    <label for="localite">npa</label>
+                                    <md-input name="npa" id="npa" v-model="search.npa" />
+                                </md-field>
+                            </div>
+    
+                            <div class="md-layout-item md-size-70 md-small-size-70">
+                                <md-field>
+                                    <label for="localite">Localité</label>
+                                    <md-input name="localite" id="localite" v-model="search.localite" />
+                                </md-field>
+                            </div>
+                        </div>
 
-                       <div class="md-layout-item md-small-size-30">
-                           <md-field>
-                               <label for="mail">Email</label>
-                               <md-input type="email" name="mail" id="mail" v-model="search.mail" />
-                           </md-field>
-                       </div>
+                        <div class="md-layout-item md-size-30 md-small-size-100">
+                            <md-field>
+                                <label for="mail">Email</label>
+                                <md-input type="email" name="mail" id="mail" v-model="search.mail" />
+                            </md-field>
+                        </div>
                    </div>
-                   <!-- Search Actions -->
+
+                   <div class="md-layout md-gutter md-alignment-top-space-between">
+                    <div class="md-layout-item md-size-50 md-size-30 md-small-size-100">
+                        <md-autocomplete id="client" v-model="search.client_id"
+                            :md-options="search_clients_list" md-dense
+                            @md-changed="searchClientsForFormInput(search.client_id)">
+                            <label>Client</label>
+                            <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                Pas de client correspondant à la recherche "{{ term }}".</a>
+                            </template>
+                        </md-autocomplete>
+                    </div>
+                  </div>
+                  <!-- Search Actions -->
                   <md-card-actions>
                      <md-button class="md-raised" v-bind:disabled="!search.nom && !search.prenom && !search.entreprise && !search.adresse && !search.localite && !search.mail" v-on:click="clearForm">Réinitialiser</md-button>
                      <md-button class="md-raised md-primary" v-on:click="searchClients">Rechercher</md-button>
@@ -90,27 +111,27 @@
 
            <!-- Results Content -->
            <md-card-content>
-               <md-table v-model="clients" md-sort="name" md-sort-order="asc">
+               <md-table v-model="clients" md-sort="name" md-sort-order="asc" md-fixed-header>
                    <md-table-row slot="md-table-row" slot-scope="{ item }">
+                       <md-table-cell md-label="Id" md-sort-by="id" v-if="false">{{ item.id }}</md-table-cell>
                        <md-table-cell md-label="Entreprise" md-sort-by="entreprise">{{ item.entreprise }}</md-table-cell>
                        <md-table-cell md-label="Titre" md-sort-by="titre">{{ item.titre }}</md-table-cell>
                        <md-table-cell md-label="Prénom" md-sort-by="prenom">{{ item.prenom }}</md-table-cell>
                        <md-table-cell md-label="Nom" md-sort-by="nom">{{ item.nom }}</md-table-cell>
-                       <md-table-cell md-label="Par" md-sort-by="represente_par">{{ item.represente_par }}</md-table-cell>
                        <md-table-cell md-label="Adresse">{{ item.adresse }}</md-table-cell>
-                       <md-table-cell md-label="NPA">{{ item.npa }}</md-table-cell>
-                       <md-table-cell md-label="Localité" md-sort-by="">{{ item.localite }}</md-table-cell>
-                       <md-table-cell md-label="Case postale">{{ item.case_postale }}</md-table-cell>
-                       <md-table-cell md-label="Tél.Fixe">{{ item.tel_fixe }}</md-table-cell>
+                       <!-- <md-table-cell md-label="Case postale">{{ item.case_postale }}</md-table-cell>
+                       <md-table-cell md-label="NPA">{{ item.npa }}</md-table-cell> -->
+                       <md-table-cell md-label="Localité" md-sort-by="">{{ item.npa }} {{ item.localite }}</md-table-cell>
+                       <!-- <md-table-cell md-label="Tél.Fixe">{{ item.tel_fixe }}</md-table-cell>
                        <md-table-cell md-label="Fax">{{ item.fax }}</md-table-cell>
                        <md-table-cell md-label="Tél.Portable">{{ item.tel_portable }}</md-table-cell>
-                       <md-table-cell md-label="Email">{{ item.mail }}</md-table-cell>
-                       <md-table-cell md-label="Actions" class="actionsColumn">
-                        <md-button class="md-icon-button md-raised md-primary">
+                       <md-table-cell md-label="Email">{{ item.mail }}</md-table-cell> -->
+                       <md-table-cell md-label="Actions" class="actionsColumn" v-if="editClientClientAllowed">
+                        <md-button class="md-icon-button md-primary" v-on:click="callEditClient(item.id)">
                            <md-icon>edit</md-icon>
                          </md-button>
                    
-                         <md-button class="md-icon-button md-raised md-accent">
+                         <md-button class="md-icon-button md-accent" v-on:click="callDeleteClient(item.id, item.nom, item.prenom, item.entreprise)">
                            <md-icon>delete</md-icon>
                          </md-button>
                        </md-table-cell>
@@ -120,4 +141,15 @@
            </md-card-content>
        </md-card>
    </div>
+
+   <div>
+    <md-dialog-confirm
+      :md-active.sync="deleteClientActive"
+      md-title="Supprimer le client"
+      :md-content="deleteMessage"
+      md-confirm-text="Confirmer"
+      md-cancel-text="Annuler"
+      @md-confirm="onConfirmDelete" 
+      @md-cancel="onCancelDelete"/>    
+  </div>
 </div>

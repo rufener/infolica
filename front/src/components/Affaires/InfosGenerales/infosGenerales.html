@@ -1,0 +1,258 @@
+<div class="infosGenerales">
+    <!-- INFORMATIONS GENERALES -->
+    <md-card class="mapHeight">
+        <md-card-content>
+            <div class="md-layout md-gutter ">
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-field>
+                        <label>Cadastre</label>
+                        <md-input v-model="affaire.cadastre" readonly></md-input>
+                    </md-field>
+                </div>
+                
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-field v-if="infoGenReadonly || affaire.modif_affaire_type_id_vers === null">
+                        <label>Type</label>
+                        <md-input v-model="affaire.type_affaire" readonly></md-input>
+                    </md-field>
+
+                    <md-autocomplete v-model="form.typeAffaire"
+                    :md-options="typesAffairesListe"
+                        required
+                        md-dense
+                        v-else>
+                        <label><strong style="color: blue;">Type</strong></label>
+                    </md-autocomplete>
+                </div>
+            </div>
+            
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-size-100 md-small-size-100">
+                    <md-field>
+                        <label v-if="infoGenReadonly">Description</label>
+                        <label v-else><strong style="color: blue">Description</strong></label>
+                        <md-textarea v-model="affaire.nom" :readonly="infoGenReadonly" md-autogrow>
+                        </md-textarea>
+                    </md-field>
+                </div>
+            </div>
+            
+            <!-- Provenance et destination de l'affaire -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-field>
+                        <label v-if="infoGenReadonly">v/ref</label>
+                        <label v-else><strong style="color: blue">v/ref</strong></label>
+                        <md-input v-model="affaire.vref" :readonly="infoGenReadonly"></md-input>
+                    </md-field>
+                </div>
+                
+                <div class="md-layout-item md-size-25 md-small-size-100" v-if="affaires_source[0]">
+                    <md-field>
+                        <label>Provient de l'affaire</label>
+                        <md-input v-model="affaires_source" readonly></md-input>
+                    </md-field>
+                </div>
+                <div class="md-layout-item md-size-25 md-small-size-100" v-if="affaires_destination[0]">
+                    <md-field>
+                        <label>Repris par l'affaire</label>
+                        <md-input v-model="affaires_destination" readonly />
+                    </md-field>
+                </div>
+            </div>
+            
+            <div class="md-layout md-gutter ">
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-field v-if="infoGenReadonly">
+                        <label>Opérateur</label>
+                        <md-input v-model="affaire.technicien" readonly>
+                        </md-input>
+                    </md-field>
+
+                    <md-autocomplete v-model="form.technicien" 
+                        :md-options="operateursListe"
+                        required
+                        md-dense
+                        v-else>
+                        <label><strong style="color: blue">Opérateur</strong></label>
+                    </md-autocomplete>
+
+                </div>
+            </div>
+
+            <div id="clients" v-if="affaire.type_id !== typesAffaires.cadastration">
+                <!-- Clients (read-only) -->
+                <div class="md-layout md-gutter" v-if="infoGenReadonly">
+                    <div class="md-layout-item md-size-50 md-small-size-100">
+                        <md-field>
+                            <label>Demandeur</label>
+                            <md-textarea v-model="affaire.client_commande_nom_" readonly></md-textarea>
+                            <md-button class="md-primary md-icon-button md-dense" 
+                                v-if="affaire.client_commande_id !== null"
+                                title="Consulter/Modifier le client"
+                                @click="openClientEditor('client_commande_id')">
+                                <md-icon>open_in_new</md-icon>
+                            </md-button>
+                        </md-field>
+                    </div>
+    
+                    <div class="md-layout-item md-size-50 md-small-size-100">
+                        <md-field>
+                            <label>Client envoi</label>
+                            <md-textarea v-model="affaire.client_envoi_nom_" readonly></md-textarea>
+
+                            <ul style="list-style: none; margin: 0px; padding-left: 0px;">
+                                <li style="text-align: center;">
+                                    <md-button class="md-primary md-icon-button md-dense"
+                                        v-if="affaire.client_envoi_id !== null"
+                                        @click="openClientEditor('client_envoi_id')"
+                                        title="Consulter/Modifier le client"
+                                        style="display: block">
+                                        <md-icon>open_in_new</md-icon>
+                                    </md-button>
+                                </li>
+
+                                <li style="text-align: center;">
+                                    <md-button class="md-primary md-icon-button md-dense"
+                                        @click="genererBordereau"
+                                        title="Générer le bordereau"
+                                        style="display: block;">
+                                        <md-icon>save_alt</md-icon>
+                                    </md-button>
+                                </li>
+                            </ul>
+                        </md-field>
+                    </div>
+                </div>
+
+                <!-- Clients (edition) -->
+                <div class="md-layout md-gutter" v-else>
+                    <md-card style="margin: 15px;">
+                        <md-card-header>
+                            <div class="md-subhead">Demandeur</div>
+                        </md-card-header>
+                        <md-card-content>
+                            <div class="md-layout-item md-size-100 md-small-size-100">
+                                <md-autocomplete v-model="form.client_commande"
+                                    :md-options="searchClientsListe"
+                                    @md-changed="searchClients(form.client_commande)"
+                                    required md-dense>
+                                    <label><strong style="color: blue">Demandeur</strong></label>
+                                    <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                        Pas de client correspondant à la recherche "{{ term }}". <a @click="openCreateClient">Créer le client !</a>
+                                    </template>
+                                </md-autocomplete>
+                            </div>
+                            <div class="md-layout-item md-size-50 md-small-size-100">
+                                <md-field>
+                                    <label>À l'attention de...</label>
+                                    <md-input v-model="form.client_commande_complement" ></md-input>
+                                </md-field>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+
+                    <md-card style="margin: 15px;">
+                        <md-card-header>
+                            <div class="md-subhead">Envoi</div>
+                        </md-card-header>
+                        <md-card-content>
+                            <div class="md-layout-item md-size-100 md-small-size-100">
+                                <md-autocomplete v-model="form.client_envoi"
+                                    :md-options="searchClientsListe"
+                                    @md-changed="searchClients(form.client_envoi)"
+                                    required md-dense>
+                                    <label><strong style="color: blue">Client envoi</strong></label>
+                                    <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                        Pas de client correspondant à la recherche "{{ term }}". <a @click="openCreateClient">Créer le client !</a>
+                                    </template>
+                                </md-autocomplete>
+                            </div>
+                            <div class="md-layout-item md-size-50 md-small-size-100">
+                                <md-field>
+                                    <label>À l'attention de...</label>
+                                    <md-input v-model="form.client_envoi_complement" ></md-input>
+                                </md-field>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+                    
+                </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-size-25 md-small-size-100">
+                    <md-field>
+                        <label>Date d'ouverture</label>
+                        <md-input v-model="affaire.date_ouverture" readonly></md-input>
+                    </md-field>
+                </div>
+                <!-- <span>{{ affaire.date_ouverture | formatDate }}</span> -->
+                <div class="md-layout-item md-size-25 md-small-size-100">
+                    <!-- Affiche la date de validation en mode infoGenReadonly -->
+                    <md-field v-if="infoGenReadonly">
+                        <label>Date de validation</label>
+                        <md-input v-model="affaire.date_validation" readonly></md-input>
+                    </md-field>
+                    <!-- Affiche la date de validation en mode édition -->
+                    <md-datepicker v-model="affaire.date_validation" md-immediately v-else @md-closed="onSelectDate" >
+                        <label><strong style="color: blue">Date de validation</strong></label>
+                    </md-datepicker>
+                </div>
+                <div class="md-layout-item md-size-25 md-small-size-100">
+                    <!-- Affiche la date de envoi en mode infoGenReadonly -->
+                    <md-field v-if="infoGenReadonly || affaire.date_validation === null">
+                        <label>Date d'envoi</label>
+                        <md-input v-model="affaire.date_envoi" readonly></md-input>
+                    </md-field>
+                    <!-- Affiche la date de clôture en mode édition -->
+                    <md-datepicker v-model="affaire.date_envoi" md-immediately v-else  @md-closed="onSelectDate">
+                        <label><strong style="color: blue">Date d'envoi</strong></label>
+                    </md-datepicker>
+                </div>
+                <div class="md-layout-item md-size-25 md-small-size-100">
+                    <!-- Affiche la date de clôture en mode infoGenReadonly -->
+                    <md-field v-if="infoGenReadonly || affaire.date_envoi === null">
+                        <label>Date de clôture</label>
+                        <md-input v-model="affaire.date_cloture" readonly></md-input>
+                    </md-field>
+                    <!-- Affiche la date de clôture en mode édition -->
+                    <md-datepicker v-model="affaire.date_cloture" md-immediately v-else @md-closed="onSelectDate">
+                        <label><strong style="color: blue">Date de clôture</strong></label>
+                    </md-datepicker>
+                </div>
+            </div>
+
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item">
+                    <div class="md-layout md-alignment-bottom-right">
+                        <div v-if="infoGenReadonly">
+                            <md-button class="md-elevation-5 md-dense md-primary" v-if="!affaireReadonly" @click="openEditMode">Modifier
+                            </md-button>
+                        </div>
+                        <div v-else>
+                            <md-button class="md-raised md-dense md-accent" @click="onCancelEdit">Annuler
+                            </md-button>
+                            <md-button class="md-raised md-dense md-primary" @click="onConfirmEdit">Enregistrer
+                            </md-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </md-card-content>
+    </md-card>
+
+
+    <!-- Date alert -->
+    <md-dialog :md-active.sync="showDateAlert">
+        <md-dialog-title>Date incohérente</md-dialog-title>
+        <md-dialog-content>
+            La {{ controle_dateItem }} entrée précède la date d'ouverture.
+        </md-dialog-content>
+        <md-dialog-actions>
+            <md-button @click="onAcceptDateAlert">Ok</md-button>
+        </md-dialog-actions>
+    </md-dialog>
+</div>

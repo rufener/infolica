@@ -1,3 +1,124 @@
 <div class="affaires">
-    Affaires
+
+    <md-toolbar>
+        <h1 style="flex: 1;">Affaires</h1>
+        <md-button class="md-raised md-accent buttonRightAlign" v-if="newAffaireAllowed" @click="$router.push({name: 'NewAffaire'})">Nouvelle affaire</md-button>
+    </md-toolbar>
+
+    <!-- Search -->
+    <md-card>
+        <!-- Search Header -->
+        <md-card-header>
+            <div class="md-title">Recherche</div>
+        </md-card-header>
+
+        <md-card-expand-trigger>
+            <md-button class="md-icon-button expandCollapseBtn">
+                <md-icon>keyboard_arrow_down</md-icon>
+            </md-button>
+        </md-card-expand-trigger>
+
+        <!-- Search Content -->
+        <md-card-expand>
+            <md-card-expand-content>
+                <md-card-content>
+                    <div class="md-layout md-gutter">
+                        <!-- id -->
+                        <div class="md-layout-item md-small-size-30">
+                            <md-field>
+                                <label>ID</label>
+                                <md-input type="number" v-model="search.id"></md-input>
+                            </md-field>
+                        </div>
+
+                        <!-- nom -->
+                        <div class="md-layout-item md-small-size-30">
+                            <md-field>
+                                <label>Nom</label>
+                                <md-input v-model="search.nom"></md-input>
+                            </md-field>
+                        </div>
+                    </div>
+
+                    <div class="md-layout md-gutter">
+                        <!-- Cadastre -->
+                        <div class="md-layout-item md-small-size-30">
+                            <md-autocomplete v-model="search.cadastre" :md-options="cadastre_liste" md-dense>
+                                <label>Cadastre</label>
+                                <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                    {{ item.nom }}
+                                </template>
+                            </md-autocomplete>
+                        </div>
+                        <!-- Type -->
+                        <div class="md-layout-item md-small-size-30">
+                            <md-autocomplete v-model="search.type" :md-options="types_affaires" md-dense>
+                                <label>Type</label>
+                                <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                    {{ item.nom }}
+                                </template>
+                            </md-autocomplete>
+                        </div>
+                    </div>
+
+                    <div class="md-layout md-gutter">
+                        <div class="md-layout-item md-size-50">
+                            <md-autocomplete v-model="search.client"
+                                :md-options="searchClientsListe"
+                                @md-changed="filterClients(search.client)"
+                                md-dense>
+                                <label>Client</label>
+                            </md-autocomplete>
+                        </div>
+                    </div>
+
+                    <!-- Search Actions -->
+                    <md-card-actions>
+                        <md-button class="md-raised"
+                            v-bind:disabled="!search.id && !search.nom && !search.cadastre && !search.type"
+                            v-on:click="clearForm">Réinitialiser</md-button>
+                        <md-button class="md-raised md-primary" v-on:click="searchAffaires">Rechercher</md-button>
+                    </md-card-actions>
+                </md-card-content>
+            </md-card-expand-content>
+        </md-card-expand>
+    </md-card>
+
+    </br>
+
+
+    <!-- Results -->
+    <div class="affairesResults">
+
+        <md-card>
+            <!-- Results Header -->
+            <md-card-header>
+                <div class="md-title">Résultats</div>
+            </md-card-header>
+
+            <!-- Results Content -->
+            <md-card-content>
+                <md-table v-model="affaires" md-sort="id" md-sort-order="desc" md-fixed-header>
+                    <md-table-row slot="md-table-row" slot-scope="{ item }">
+                        <md-table-cell md-label="Id" md-sort-by="id" md-numeric>{{ item.id }}</md-table-cell>
+                        <md-table-cell md-label="Cadastre" md-sort-by="cadastre">{{ item.cadastre }}</md-table-cell>
+                        <md-table-cell md-label="Description" md-sort-by="nom">{{ item.nom }}</md-table-cell>
+                        <md-table-cell md-label="Type" md-sort-by="type_affaire">{{ item.type_affaire }}</md-table-cell>
+                        <md-table-cell md-label="Client" md-sort-by="client_commande_nom">{{ item.client_commande_nom }}
+                        </md-table-cell>
+                        <md-table-cell md-label="Technicien" md-sort-by="technicien_nom">{{ item.technicien_prenom }}
+                            {{ item.technicien_nom }}</md-table-cell>
+                        <md-table-cell md-label="Date d'ouverture" md-sort-by="date_ouverture">{{ item.date_ouverture | formatDate }}
+                        </md-table-cell>
+                        <md-table-cell md-label="Consulter" class="actionsColumn">
+                            <md-button class="md-icon-button md-primary" v-on:click="doOpenAffaire(item.id)">
+                                <md-icon>open_in_new</md-icon>
+                            </md-button>
+                        </md-table-cell>
+                    </md-table-row>
+                </md-table>
+            </md-card-content>
+        </md-card>
+
+    </div>
 </div>

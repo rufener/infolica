@@ -1,0 +1,18 @@
+.controlePPE {
+    width: 100%;
+    float: left;
+}
+
+.controlePPE .md-checkbox {
+  display: flex;
+}
+
+.controlePPE .controlePPEForm {
+    width: 95%;
+    /*float: left;*/
+}
+
+.controlePPE .newControlePPEBtn {
+    right: 25px;
+    position: absolute;
+}

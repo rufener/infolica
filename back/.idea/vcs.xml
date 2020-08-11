@@ -3,5 +3,8 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/env/src/infolica" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/env2/src/infolica" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/infolica" vcs="Git" />
   </component>
 </project>

@@ -1,0 +1,67 @@
+<div class="affaireRemarques">
+    <md-card>
+        <!-- Results Header -->
+        <md-card-header>
+            <div class="md-title">
+                <md-card-expand-trigger>
+                    <md-button class="md-icon-button expandCollapseBtn"
+                        @click.native="showNewRemarqueBtn = !showNewRemarqueBtn">
+                        <md-icon>keyboard_arrow_down</md-icon>
+                    </md-button>
+                </md-card-expand-trigger>
+                Remarques
+                <md-button class="md-primary newRemarqueBtn" v-on:click="addRemarque()" v-if="showNewRemarqueBtn &&!affaireReadonly">
+                    Nouvelle remarque</md-button>
+            </div>
+        </md-card-header>
+
+        <md-card-expand>
+            <md-card-expand-content>
+
+                <md-card-content>
+                    <div v-if="new_remarque.showDiv">
+                        <md-card>
+                            <md-card-header>
+                                <div class="md-title">Nouvelle remarque</div>
+                            </md-card-header>
+                            <md-card-content>
+                                <md-field>
+                                    <label>Remarque</label>
+                                    <md-textarea v-model="new_remarque.remarque"></md-textarea>
+                                </md-field>
+                                <!-- Boutons annuler et enregistrer -->
+                                <div class="md-layout md-alignment-bottom-right">
+                                    <md-button class="md-accent md-raised" v-on:click="cancelNewRemarque()">
+                                        Annuler
+                                    </md-button>
+                                    <md-button class="md-primary md-raised" v-on:click="saveNewRemarque()">
+                                        Enregistrer
+                                    </md-button>
+                                </div>
+                            </md-card-content>
+                        </md-card>
+                    </div>
+
+
+                    <div v-if="affaire_remarques[0]">
+                        <md-table v-model="affaire_remarques" md-sort="id" md-sort-order="desc" md-fixed-header md-card>
+                            <md-table-row slot="md-table-row" slot-scope="{ item }">
+                                <md-table-cell md-label="id" md-sort-by="id" v-if="false">{{ item.id }}</md-table-cell>
+                                <md-table-cell md-label="Opérateur" md-sort-by="nom" style="width: 15%;">{{ item.prenom }} {{ item.nom }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Date" md-sort-by="date" style="width: 10%;">{{ item.date | formatDate }}</md-table-cell>
+                                <md-table-cell md-label="Remarque" md-sort-by="remarque" style="width: 75%;">{{ item.remarque }}
+                                </md-table-cell>
+                            </md-table-row>
+                        </md-table>
+                    </div>
+                    <div v-else>
+                        <em>Aucune remarque</em>
+                    </div>
+                </md-card-content>
+
+            </md-card-expand-content>
+        </md-card-expand>
+
+    </md-card>
+</div>

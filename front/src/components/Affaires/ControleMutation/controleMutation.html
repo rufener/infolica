@@ -1,0 +1,252 @@
+<div class="controleMutation">
+    <md-card>
+        <md-card-header>
+            <div class="md-title">
+                <md-card-expand-trigger>
+                    <md-button class="md-icon-button expandCollapseBtn"
+                        @click.native="showNewControleMutationBtn = !showNewControleMutationBtn">
+                        <md-icon>keyboard_arrow_down</md-icon>
+                    </md-button>
+                </md-card-expand-trigger>
+                Contrôle Mutation (Chef de projet)
+                <md-button class="md-primary newControleMutationBtn" v-on:click="newControleMutation()"
+                    v-if="needToCreateControleMutation && showNewControleMutationBtn && !affaireReadonly">Créer le contrôle</md-button>
+            </div>
+        </md-card-header>
+
+        <md-card-expand>
+            <md-card-expand-content>
+
+                <md-card-content v-bind:class="{ disabledElement: affaireReadonly }">
+                    <div v-if="controleMutation.id">
+                        <!-- BIENS_FONDS -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">BIENS_FONDS</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.bf_1">
+                                    Contrôler les numéros des points limites ainsi que la valeur, la précision et la
+                                    fiabilité des points sont en adéquations avec le niveau de tolérance de la zone de
+                                    travail.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.bf_2">
+                                    Contrôler dans la table « Bien_fonds => Mise_a_jourBF » qu’il y que les nouveaux
+                                    biens-fonds créés dans votre affaire et qu'il n'y a pas de biens-fonds sans
+                                    géométrie.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.bf_3">
+                                    Contrôler dans la table « Bien_fonds » que l’attribut « Validation_juridique » est
+                                    non pour les nouveaux biens-fonds sauf pour les nouveaux DP.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.bf_4">
+                                    Contrôler dans la table « Biens_fonds.PosImmeuble » que les éléments suivants sont
+                                    corrects (Hali=Center, Vali=Half, Grandeur=Petite.petite).
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- COUVERTURE_DU_SOL -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">COUVERTURE_DU_SOL</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.cs_1">
+                                    Contrôler les numéros des points particuliers "660" ainsi que la valeur, la
+                                    précision et la fiabilité des points sont en adéquations avec le niveau de tolérance
+                                    de la zone de travail.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.cs_2">
+                                    Contrôler dans la table « Couverture_du_sol => Mise_a_jourCS » qu’il y a que les
+                                    nouvelles surfaces créées dans votre affaire qu'il n'y a pas de surfaces sans
+                                    géométrie.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.cs_3">
+                                    Contrôler dans la table « Couverture_du_sol => PosNumero_de_batiment » que les
+                                    éléments suivants sont corrects (Hali=Center, Vali=Base,
+                                    Grandeur=Petite.tres_petite).
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.cs_4">
+                                    Insérer les points dans la base Acces des bâtiments projets (voir Processus).
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.cs_5">
+                                    Contrôler la géométrie des EGID (01.01.2012).
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+
+                        <!-- OBJETS_DIVERS -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">OBJETS_DIVERS</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.od_1">
+                                    Tous les points de constructions "760" sont supprimés.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.od_2">
+                                    Contrôler les nouveaux éléments créés dans votre affaire et qu'il n'y a pas d'objets
+                                    divers sans géométrie.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.od_3">
+                                    Contrôler que les bâtiments souterrains ont les bons numéros et une désignation.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.od_4">
+                                    Insérer les points dans la base Acces des bâtiments projets (voir Processus).
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.od_5">
+                                    Contrôler que l'attribut « Objets_divers => SymboleElement_surfacique » est rempli
+                                    pour les piscines.
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+
+                        <!-- ADRESSES_DES_BATIMENTS -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">ADRESSES_DES_BATIMENTS</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.bat_1">
+                                    Contrôler dans la table « Adresses_des_batiments => Mise_a_jourBAT » qu’il y a bien
+                                    que les nouveaux éléments que vous avez créés dans votre affaire.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.bat_2">
+                                    Contrôler dans la table « Adresses_des_batiments => PosNumero_maison » que les
+                                    éléments suivants sont corrects (Hali=Center, Vali=Half,
+                                    Grandeur=Petite.assez_petite).
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.bat_3">
+                                    Contrôler que les points adresses sont dans les géométries.
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+
+                        <!-- SERVITUDES -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">SERVITUDES</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.serv_1">
+                                    Contrôler dans la table « Servitudes => Mise_a_jourSE » qu’il y a bien que les
+                                    nouveaux éléments que vous avez créés dans votre affaire.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.serv_2">
+                                    Contrôler dans la table « Servitudes => Servitude_surface » ou « Servitudes =>
+                                    Servitude_ligne » ou « Servitudes => Servitude_point » que l’attribut « Validite »
+                                    est en_projet pour les nouvelles servitudes.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.serv_3">
+                                    Contrôler dans la table « Servitudes => PosNumero_de_servitude » que les éléments
+                                    suivants sont corrects (Hali=Left, Vali=Base, Grandeur= -).
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+
+                        <!-- NOMENCLATURE -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">NOMENCLATURE</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.nom_1">
+                                    A partir de deux noms locaux pour un bien-fonds vérifier si cela est exact.
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+
+                        <!-- STATUT MUTATION -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">STATUT MUTATION</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.suiv_mut_1">
+                                    Supprimer dans la gestion des mutations les « Topic » qui ne sont pas utilisés.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.suiv_mut_2">
+                                    Mutation "En cours/Libérée".
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+
+                        <!-- DIVERS -->
+                        <md-card class="controleMutationForm">
+                            <md-card-content>
+                                <div class="md-title">DIVERS</div>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.div_1">
+                                    Épurations des fichiers dans le répertoire de l’affaire.
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.div_2">
+                                    Contrôler que vous avez bien saisi le dernier numéro de point de l’affaire concernée dans le programme « Réservation des numéros ».
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controleMutation.div_3">
+                                    Contrôler rigoureusement les désignations, la balance ainsi que les observations pour le registre foncier.
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+
+                        <!-- Visa et date -->
+                        <div class="md-layout md-gutter">
+                            <div class="md-layout-item md-size-25">
+                                <md-autocomplete v-model="controleMutation.visa" :md-options="chefsProjetMO_liste" md-dense>
+                                    <label>Visa</label>
+                                    <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                        {{item.nom}}
+                                    </template>
+                                </md-autocomplete>
+                            </div>
+                            <div class="md-layout-item md-size-25">
+                                <md-datepicker v-model="controleMutation.date" md-immediately>
+                                    <label>Date</label>
+                                </md-datepicker>
+                            </div>
+                            <div class="md-layout md-alignment-bottom-right">
+                                <md-button class="md-accent md-raised" v-on:click="onCancelEditControleMutation" v-if="!affaireReadonly">
+                                    Annuler
+                                </md-button>
+
+                                <md-button class="md-primary md-raised md-top-right"
+                                    v-on:click="onConfirmEditControleMutation" v-if="!affaireReadonly">
+                                    Enregistrer
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <em>Aucun contrôle</em>
+                    </div>
+                </md-card-content>
+            </md-card-expand-content>
+        </md-card-expand>
+    </md-card>
+</div>

@@ -1,0 +1,19 @@
+.suivi {
+    width: 100%;
+    float: left;
+}
+
+.suivi .md-table {
+    width: 40%;
+    margin: auto;
+}
+
+.suivi .newEtapeBtn {
+    right: 25px;
+    position: absolute;
+}
+
+.md-dialog {
+    z-index: 6; /* Le dialogue apparaît sous le div de suggestions du md-autocomplete pour la recherche de clients*/
+}
+

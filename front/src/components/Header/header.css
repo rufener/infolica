@@ -20,22 +20,19 @@
 
 .header h2{
     color:#FFFFFF;
-}
-
-.header h2{
     float: left;
     margin: 10px;
 }
 
 .header .menu{
-    width: 355px;
+    width: 470px;
     margin: 0 auto;
     
 }
 
 .header .menu .md-menu .md-button{
     height: 40px;
-    color:#ff6358;
+    color:#FFFFFF /*#ff6358*/;
 }
 
 .header  .user{
@@ -44,7 +41,7 @@
     top: 8px;
 }
 
-.header i{
+.header em{
     vertical-align: middle !important;
 }
 
@@ -58,6 +55,6 @@
     font-weight: bold;
 }
 
-.header  .user i {
+.header  .user em {
     cursor: pointer;
 }

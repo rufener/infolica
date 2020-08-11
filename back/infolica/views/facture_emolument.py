@@ -1,100 +1,95 @@
+# -*- coding: utf-8 -*--
 from pyramid.view import view_config
 import pyramid.httpexceptions as exc
-from ..scripts.utils import Utils
-from ..models import Constant
-import transaction
 
-from sqlalchemy.exc import DBAPIError
-from ..exceptions.custom_error import CustomError
-
-from .. import models
-
-import logging
-log = logging.getLogger(__name__)
-
+from infolica.exceptions.custom_error import CustomError
+from infolica.models.constant import Constant
+from infolica.models.models import EmolumentFacture, VEmolumentsFactures
+from infolica.scripts.utils import Utils
 
 ###########################################################
 # EMOLUMENTS
 ###########################################################
 
-""" Return all emoluments in facture"""
+
 @view_config(route_name='facture_emoluments_by_facture_id', request_method='GET', renderer='json')
 def facture_emoluments_view(request):
+    """
+    Return all emoluments in facture
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
+
     facture_id = request.matchdict["id"]
 
-    try:
-        query = request.dbsession.query(models.VEmolumentsFactures)\
-            .filter(models.VEmolumentsFactures.facture_id == facture_id).all()
-        return Utils.serialize_many(query)
-
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    query = request.dbsession.query(VEmolumentsFactures).filter(
+        VEmolumentsFactures.facture_id == facture_id
+    ).all()
+    return Utils.serialize_many(query)
 
 
-""" Add new emolument_facture"""
 @view_config(route_name='emolument_facture', request_method='POST', renderer='json')
 @view_config(route_name='emolument_facture_s', request_method='POST', renderer='json')
 def emolument_facture_new_view(request):
+    """
+    Add new emolument_facture
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['affaire_facture_edition']):
+        raise exc.HTTPForbidden()
 
-    record = models.EmolumentFacture()
+    record = EmolumentFacture()
     record = Utils.set_model_record(record, request.params)
 
-    try:
-        with transaction.manager:
-            request.dbsession.add(record)
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(models.EmolumentFacture.__tablename__))
+    request.dbsession.add(record)
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(EmolumentFacture.__tablename__))
 
 
-""" Update emolument_facture"""
 @view_config(route_name='emolument_facture', request_method='PUT', renderer='json')
 @view_config(route_name='emolument_facture_s', request_method='PUT', renderer='json')
 def emolument_facture_update_view(request):
+    """
+    Update emolument_facture
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['affaire_facture_edition']):
+        raise exc.HTTPForbidden()
+
     emolument_facture_id = request.params['id'] if 'id' in request.params else None
 
     # Get the facture
-    record = request.dbsession.query(models.EmolumentFacture).filter(
-        models.EmolumentFacture.id == emolument_facture_id).first()
+    record = request.dbsession.query(EmolumentFacture).filter(
+        EmolumentFacture.id == emolument_facture_id).first()
 
     if not record:
         raise CustomError(
-            CustomError.RECORD_WITH_ID_NOT_FOUND.format(models.EmolumentFacture.__tablename__, emolument_facture_id))
+            CustomError.RECORD_WITH_ID_NOT_FOUND.format(EmolumentFacture.__tablename__, emolument_facture_id))
 
     record = Utils.set_model_record(record, request.params)
 
-    try:
-        with transaction.manager:
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(models.EmolumentFacture.__tablename__))
-
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(EmolumentFacture.__tablename__))
 
 
-""" Delete emolument_facture"""
 @view_config(route_name='emolument_facture_by_id', request_method='DELETE', renderer='json')
 def emolument_facture_delete_view(request):
-    try:
-        id = request.matchdict['id']
+    """
+    Delete emolument_facture
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['affaire_facture_edition']):
+        raise exc.HTTPForbidden()
 
-        record = request.dbsession.query(models.EmolumentFacture).filter(
-            models.EmolumentFacture.id == id).first()
+    id = request.matchdict['id']
 
-        if not record:
-            raise CustomError(
-                CustomError.RECORD_WITH_ID_NOT_FOUND.format(models.EmolumentFacture.__tablename__, id))
+    record = request.dbsession.query(EmolumentFacture).filter(
+        EmolumentFacture.id == id).first()
 
-        with transaction.manager:
-            request.dbsession.delete(record)
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_DELETE.format(models.EmolumentFacture.__tablename__))
+    if not record:
+        raise CustomError(
+            CustomError.RECORD_WITH_ID_NOT_FOUND.format(EmolumentFacture.__tablename__, id))
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    request.dbsession.delete(record)
+
+    return Utils.get_data_save_response(Constant.SUCCESS_DELETE.format(EmolumentFacture.__tablename__))

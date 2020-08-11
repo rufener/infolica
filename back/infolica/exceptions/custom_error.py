@@ -6,5 +6,4 @@ class CustomError(Exception):
     NOT_AUTHORIZED_EXCEPTION = 'Not authorized'
     RECORD_WITH_ID_NOT_FOUND = '{} with id {} not found'
     UPDATE_NO_CHANGE_RECORDED = "No change recorded for id {} in table {}"
-
-    pass
+    NOT_FOUND_ERROR = "Route {} with method {} not found"

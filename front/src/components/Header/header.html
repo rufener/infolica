@@ -4,36 +4,32 @@
             <img class="logo" alt="ne.ch" src="@/assets/logo.png">
             <h2>Infolica</h2>
 
+            <nav class="menu" v-if="$route.name !== 'Login'">
+              <md-menu md-align-trigger>
+                  <md-button md-menu-trigger v-on:click="goTo('Affaires')">Affaires</md-button>
+              </md-menu>
+            
+              <md-menu md-align-trigger>
+                <md-button md-menu-trigger v-on:click="goTo('Numeros')">Numéros</md-button>
+              </md-menu>
+            
+              <md-menu md-align-trigger>
+                <md-button md-menu-trigger v-on:click="goTo('Clients')">Clients</md-button>
+              </md-menu>
 
-            <nav class="menu">
               <md-menu md-align-trigger>
-                  <md-button md-menu-trigger v-on:click="goTo('/affaires')">affaires</md-button>
-            
-                <md-menu-content>
-                  <md-menu-item>My Item 1</md-menu-item>
-                  <md-menu-item>My Item 2</md-menu-item>
-                </md-menu-content>
+                <md-button md-menu-trigger v-on:click="goTo('Operateurs')">Opérateurs</md-button>
               </md-menu>
             
               <md-menu md-align-trigger>
-                <md-button md-menu-trigger v-on:click="goTo('/numeros')">numéros</md-button>
-              </md-menu>
-            
-              <md-menu md-align-trigger>
-                <md-button md-menu-trigger v-on:click="goTo('/clients')">clients</md-button>
-              </md-menu>
-            
-              <md-menu md-align-trigger>
-                <md-button md-menu-trigger v-on:click="goTo('/apropos')">à propos</md-button>
+                <md-button md-menu-trigger v-on:click="goTo('About')">à propos</md-button>
               </md-menu>              
-            </nav>
+            </nav>           
 
-            
-
-            <div class="user" v-if="loggedUserName">
-              <i class="material-icons md-light">account_circle</i>
+            <div class="user" v-if="$route.name !== 'Login'">
+              <em class="material-icons md-light">account_circle</em>
               <span class="userName">{{loggedUserName}}</span>
-              <i class="material-icons md-light" v-on:click="callLogout" title="Déconnexion">exit_to_app</i>
+              <em class="material-icons md-light" v-on:click="callLogout" title="Déconnexion">exit_to_app</em>
             </div>
         </md-card-content>
       </md-card>

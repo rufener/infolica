@@ -1,0 +1,15 @@
+.operateursEdit {
+  width: 50%;
+  margin: auto;
+}
+
+.operateursEdit .md-progress-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+
+.operateursEdit .md-checkbox {
+  margin-top: 30px;
+}

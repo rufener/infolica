@@ -1,0 +1,78 @@
+<div class="suivi">
+    <md-card>
+        <!-- Results Header -->
+        <md-card-header>
+            <div class="md-title">
+                <md-card-expand-trigger>
+                    <md-button class="md-icon-button expandCollapseBtn"
+                        @click.native="showNewEtapeBtn = !showNewEtapeBtn">
+                        <md-icon>keyboard_arrow_down</md-icon>
+                    </md-button>
+                </md-card-expand-trigger>
+                Historique de l'affaire
+                <md-button class="md-primary newEtapeBtn" v-on:click="showEtapeDialog = !showEtapeDialog"
+                    v-if="showNewEtapeBtn && !affaireReadonly">
+                    Nouvelle étape</md-button>
+            </div>
+        </md-card-header>
+
+        <md-card-expand>
+            <md-card-expand-content>
+
+                <md-card-content>
+                    <div v-if="affaire_suivi[0]">
+                        <md-table v-model="affaire_suivi" md-sort="date_etape" md-sort-order="desc" md-fixed-header md-card>
+                            <md-table-row slot="md-table-row" slot-scope="{ item }">
+                                <md-table-cell md-label="id" md-sort-by="id" v-if="false">{{ item.id }}</md-table-cell>
+                                <md-table-cell md-label="Étape" md-sort-by="etape" style="width: 30%;">{{ item.etape }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Date" md-sort-by="date_etape"  style="width: 20%;">{{ item.date_etape | formatDate }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Remarque" md-sort-by="remarque" style="width: 50%;">{{ item.remarque }}
+                                </md-table-cell>
+                            </md-table-row>
+                        </md-table>
+                    </div>
+                    <div v-else>
+                        <em>Aucune étape</em>
+                    </div>
+                </md-card-content>
+
+
+                <md-dialog :md-active.sync="showEtapeDialog" md-confirm-text="Enregistrer" md-cancel-text="Annuler"
+                    md-title="Édition d'étape">
+                    <md-dialog-title>Édition d'étape</md-dialog-title>
+                    <md-dialog-content>
+                        <md-autocomplete v-model="new_etape.etape" :md-options="etapes_list"
+                            :class="getValidationClass('etape')" md-dense>
+                            <label>Étape *</label>
+                            <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                {{ item.nom }}
+                            </template>
+                            <span class="md-error" v-if="!$v.new_etape.etape.required">L'étape est obligatoire</span>
+                        </md-autocomplete>
+
+                        <div class="md-layout">
+                            <md-datepicker v-model="new_etape.date" :class="getValidationClass('date')" md-immediately>
+                                <label>Date *</label>
+                                <span class="md-error" v-if="!$v.new_etape.date.required">La date est obligatoire</span>
+                            </md-datepicker>
+                        </div>
+
+                        <md-field>
+                            <label>Remarque</label>
+                            <md-textarea v-model="new_etape.remarque"></md-textarea>
+                        </md-field>
+                    </md-dialog-content>
+                    <md-dialog-actions>
+                        <md-button class="md-accent" @click="onCancelEditEtape">Annuler</md-button>
+                        <md-button class="md-primary" @click="onConfirmEditEtape">Enregistrer</md-button>
+
+                    </md-dialog-actions>
+                </md-dialog>
+
+            </md-card-expand-content>
+        </md-card-expand>
+
+    </md-card>
+</div>

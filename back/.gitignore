@@ -77,7 +77,8 @@ coverage.xml
 
 # Django stuff:
 *.log
-.logs/
+.logs/*
+!.logs/.gitkeep
 local_settings.py
 db.sqlite3
 
@@ -138,3 +139,7 @@ infolica/alembic/versions
 
 # log files
 **/*.log
+
+# tmp folder content
+./tmp/*
+!.logs/.gitkeep

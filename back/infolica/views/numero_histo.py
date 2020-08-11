@@ -1,40 +1,48 @@
+# -*- coding: utf-8 -*--
 from pyramid.view import view_config
 import pyramid.httpexceptions as exc
-from ..scripts.utils import Utils
-from ..models import Constant
-import transaction
-from sqlalchemy import desc
 
-from sqlalchemy.exc import DBAPIError
-from ..exceptions.custom_error import CustomError
-
-from .. import models
-
-import logging
-log = logging.getLogger(__name__)
-
+from infolica.models.models import VNumerosRelations
+from infolica.scripts.utils import Utils
 
 ###########################################################
 # NUMERO ETAT HISTO
 ###########################################################
 
-""" Get new numero_base_relation """
-@view_config(route_name='numero_base_relation_by_id', request_method='GET', renderer='json')
-def numero_base_relation_view(request):
+
+@view_config(route_name='numero_base_relations_by_id', request_method='GET', renderer='json')
+def numero_base_relations_view(request):
+    """
+    Get new numero_base_relations
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
+
     numero_id = request.matchdict["id"]
-    
-    # get data
-    try:
-        record = request.dbsession.query(models.VNumerosRelations)\
-            .filter(models.VNumerosRelations.numero_base_id == numero_id).all()
-        
-        if not record:
-            raise CustomError.RECORD_WITH_ID_NOT_FOUND.format(
-                models.VNumerosRelations.__tablename__, numero_id)
 
+    record = request.dbsession.query(VNumerosRelations).filter(VNumerosRelations.numero_associe_id == numero_id).all()
+
+    if record:
         return Utils.serialize_many(record)
+    else:
+        return None
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
 
+@view_config(route_name='numero_associe_relations_by_id', request_method='GET', renderer='json')
+def numero_associe_relations_view(request):
+    """
+    Get new numero_associe_relations
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
+
+    numero_id = request.matchdict["id"]
+
+    record = request.dbsession.query(VNumerosRelations).filter(VNumerosRelations.numero_base_id == numero_id).all()
+
+    if record:
+        return Utils.serialize_many(record)
+    else:
+        return None

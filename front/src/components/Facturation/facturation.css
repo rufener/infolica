@@ -1,0 +1,33 @@
+.facturation {
+    width: 100%;
+    float: left;
+}
+
+.facturation .actionsColumn {
+    width: 150px !important;
+    min-width: 150px !important;
+}
+
+.facturation .md-table {
+    width: 100%;
+    margin: auto;
+}
+
+.md-dialog-content {
+    min-width: 600px;
+}
+
+.md-dialog {
+    margin: auto;
+    z-index: 6;
+    /* Le dialogue apparaît sous le div de suggestions du md-autocomplete pour la recherche de clients*/
+}
+
+.md-dialog .currency {
+    text-align: right !important;
+}
+
+.facturation .newFactureBtn {
+    right: 25px;
+    position: absolute;
+}

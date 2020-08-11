@@ -1,0 +1,5 @@
+.balance .verticalSpan {
+    float: left;
+    text-align: center;
+    writing-mode: sideways-lr;
+}

@@ -1,0 +1,18 @@
+.controleMutation {
+    width: 100%;
+    float: left;
+}
+
+.controleMutation .md-checkbox {
+  display: flex;
+}
+
+.controleMutation .controleMutationForm {
+    width: 95%;
+    /*float: left;*/
+}
+
+.controleMutation .newControleMutationBtn {
+    right: 25px;
+    position: absolute;
+}

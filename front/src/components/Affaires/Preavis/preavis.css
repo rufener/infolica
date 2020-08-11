@@ -1,0 +1,20 @@
+.preavis {
+    width: 100%;
+    float: left;
+}
+
+.preavis .md-table {
+    width: 70%;
+    margin: auto;
+}
+
+.preavis .newPreavisBtn {
+    right: 25px;
+    position: absolute;
+}
+
+.md-dialog {
+    z-index: 6;
+    /* Le dialogue apparaît sous le div de suggestions du md-autocomplete pour la recherche de clients*/
+}
+

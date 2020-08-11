@@ -1,0 +1,123 @@
+<div class="preavis">
+    <md-card>
+        <!-- Results Header -->
+        <md-card-header>
+            <div class="md-title">
+                <md-card-expand-trigger>
+                    <md-button class="md-icon-button expandCollapseBtn"
+                        @click.native="showNewPreavisBtn = !showNewPreavisBtn">
+                        <md-icon>keyboard_arrow_down</md-icon>
+                    </md-button>
+                </md-card-expand-trigger>
+                Préavis (SCAT, SAGR, Service de l'urbanisme des villes)
+                <md-button class="md-primary newPreavisBtn" v-on:click="showPreavisDialog = !showPreavisDialog"
+                    v-if="showNewPreavisBtn && !affaireReadonly">  
+                    Nouveau préavis</md-button>
+            </div>
+        </md-card-header>
+
+        <md-card-expand>
+            <md-card-expand-content>
+
+                <md-card-content>
+                    <div v-if="affaire_preavis[0]">
+                        <md-table v-model="affaire_preavis" md-sort="service" md-sort-order="asc" md-fixed-header md-card>
+                            <md-table-row slot="md-table-row" slot-scope="{ item }">
+                                <md-table-cell md-label="id" md-sort-by="id" v-if="false">{{ item.id }}</md-table-cell>
+                                <md-table-cell md-label="Service" md-sort-by="service" style="width: 10%;">{{ item.service }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Demande" md-sort-by="date_demande" style="width: 10%;">{{ item.date_demande | formatDate }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Réponse" md-sort-by="date_reponse" style="width: 10%;">{{ item.date_reponse | formatDate }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Préavis" md-sort-by="preavis" style="width: 10%;">{{ item.preavis }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Remarque" md-sort-by="remarque"  style="width: 20%;">{{ item.remarque }}
+                                </md-table-cell>
+                                <md-table-cell md-label="Actions" v-if="!affaireReadonly"  style="width: 10%;">
+                                    <md-button class="md-icon-button md-primary"
+                                        v-on:click="onModifyPreavis(item)"  
+                                        title="Mettre à jour le préavis">
+                                        <md-icon class="md-edit">edit</md-icon>
+                                    </md-button>
+                                    <md-button class="md-icon-button md-primary" 
+                                        title="Générer la demande de préavis"
+                                        @click="downloadModel(item.service_id)">
+                                        <md-icon>save_alt</md-icon>
+                                    </md-button>
+                                </md-table-cell>
+                            </md-table-row>
+                        </md-table>
+                    </div>
+                    <div v-else>
+                        <em>Aucun préavis</em>
+                    </div>
+                </md-card-content>
+            </md-card-expand-content>
+        </md-card-expand>
+        
+    </md-card>
+
+
+    <md-dialog :md-active.sync="showPreavisDialog" md-confirm-text="Enregistrer" md-cancel-text="Annuler"
+        md-title="Édition de préavis">
+        <md-dialog-title>Édition de préavis</md-dialog-title>
+        <md-dialog-content>
+            
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-autocomplete v-model="new_preavis.service" :md-options="services_liste"
+                        :class="getValidationClass('service')" md-dense>
+                        <label>Service *</label>
+                        <template slot="md-autocomplete-item" slot-scope="{ item }">
+                            {{ item.nom }}
+                        </template>
+                        <span class="md-error" v-if="!$v.new_preavis.service.required">Le service est
+                            obligatoire</span>
+                    </md-autocomplete>
+                </div>
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-datepicker v-model="new_preavis.date_demande" :class="getValidationClass('date_demande')" md-immediately>
+                        <label>Date de demande *</label>
+                    </md-datepicker>
+                    <span class="md-error" v-if="!$v.new_preavis.date_demande.required">La date de demande est
+                        obligatoire</span>
+                </div>
+            </div>
+            
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-autocomplete v-model="new_preavis.preavis" :md-options="preavis_type_liste" md-dense>
+                        <label>Préavis</label>
+                        <template slot="md-autocomplete-item" slot-scope="{ item }">
+                            {{ item.nom }}
+                        </template>
+                    </md-autocomplete>
+                </div>
+                <div class="md-layout-item md-size-50 md-small-size-100">
+                    <md-datepicker v-model="new_preavis.date_reponse" md-immediately>
+                        <label>Date de réponse</label>
+                    </md-datepicker>
+                </div>
+            </div>
+
+            <br/>
+    
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-size-100">
+                    <md-field>
+                        <label>Remarque</label>
+                        <md-textarea v-model="new_preavis.remarque"></md-textarea>
+                    </md-field>
+                </div>
+            </div>
+            
+    
+        </md-dialog-content>
+        <md-dialog-actions>
+            <md-button class="md-accent" @click="onCancelEditPreavis">Annuler</md-button>
+            <md-button class="md-primary" @click="onConfirmEditPreavis">Enregistrer</md-button>
+    
+        </md-dialog-actions>
+    </md-dialog>
+</div>

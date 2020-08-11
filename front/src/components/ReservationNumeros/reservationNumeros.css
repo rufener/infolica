@@ -1,0 +1,36 @@
+.reservationNumeros{
+    width: 80%;
+    margin: auto;
+}
+
+.reservationNumeros .leftColumn {
+    float: left;
+    width: 49.7%;
+}
+
+.reservationNumeros .rightColumn {
+    float: right;
+    width: 49.7%;
+}
+
+.reservationNumeros .alignLeft {
+    width: 50%; 
+    float: left;
+}
+
+.reservationNumeros .textAlignRight {
+    text-align: right;
+}
+
+.reservationNumeros .md-card .simple {
+    width: 100%;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0px;
+}
+
+.md-dialog {
+    z-index: 6; 
+    width: 80%;
+    margin: auto;
+}

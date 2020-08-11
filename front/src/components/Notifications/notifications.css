@@ -1,0 +1,12 @@
+.notifications{
+    width: 100%;
+    float: left;
+}
+
+.md-snackbar.isErrorDiv{
+    background-color: red !important;
+}
+
+.md-snackbar.isSuccessDiv{
+    background-color: green !important;
+}

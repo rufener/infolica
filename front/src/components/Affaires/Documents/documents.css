@@ -1,0 +1,22 @@
+.documents {
+    width: 100%;
+    float: left;
+}
+
+.documents .md-table {
+    width: 70%;
+    margin: auto;
+}
+
+.documents .actionsCol {
+    width: 140px;
+}
+
+.documents .uploadDocBtn {
+    right: 25px;
+    position: absolute;
+}
+
+.uploadDocFile {
+    max-width: 700px;
+}

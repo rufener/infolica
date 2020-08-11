@@ -24,17 +24,16 @@ export default {
 
       else
         this.loggedUserName = null;
-      //this.userNameVisible = (typeof this.loggedUserName === "string" && this.loggedUserName.length > 0);
     },
 
     /**
      * call logout
      */
     callLogout(){
-      if(this.$router && this.$router.currentRoute && this.$router.currentRoute.path != '/login'){
+      if(this.$router && this.$router.currentRoute && this.$router.currentRoute.name != 'Login'){
         let vm = this;
-        this.$router.push('/login', function(){
-          vm.$root.$emit('infolica_user_logout');
+        this.$router.push({name: "Login"}, function(){
+          vm.$root.$emit("infolica_user_logout");
         });        
       }
       
@@ -44,8 +43,8 @@ export default {
      * Go to route
      */
     goTo(route){
-      if(this.$router && this.$router.currentRoute && this.$router.currentRoute.path != route)
-        this.$router.push(route);
+      if(this.$router && this.$router.currentRoute && this.$router.currentRoute.name != route)
+        this.$router.push({ name: route});
     }
   },
 

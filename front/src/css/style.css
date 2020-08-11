@@ -15,6 +15,44 @@ body {
     color: #FFFFFF;
 }
 
+
+#app .disabledElement{
+    pointer-events: none;
+}
+
 .md-card .md-title {
     font-size: 20px !important;
+}
+
+.md-snackbar{
+    background-color: #267F00;
+}
+
+.md-card {
+    width: 100%;
+    display: inline-block;
+    vertical-align: top;
+    margin: 4px;
+}
+
+.md-toolbar {
+    width: 100%;
+    display: inline-block;
+    vertical-align: top;
+    margin: 4px;
+}
+
+
+/* Suppression molette input type number */
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.buttonRightAlign {
+    text-align: right;
 }

@@ -1,7 +1,6 @@
-.clientsEdit{
-    width: 100%;
-    float: left;
-    overflow: auto;
+.clientsEdit {
+    width: 50%;
+    margin: auto;
 }
 
 

@@ -1,0 +1,386 @@
+<div class="newAffaire">
+    <md-toolbar>
+        <h1 style="flex: 1;">Nouvelle affaire</h1>
+    </md-toolbar>
+
+    <form novalidate class="md-layout" @submit.prevent="validateForm">
+        <md-card>
+            <md-card-content>
+
+                <!-- Cadastre et opérateur -->
+                <div class="md-layout md-gutter">
+                    <div class="md-layout-item md-small-size-100 md-size-50">
+                        <md-autocomplete v-model="form.cadastre" 
+                                         md-dense required
+                                         :md-options="cadastres_list"
+                                         :class="getValidationClass($v.form.cadastre)">
+                            <label>Cadastre</label>
+                            <template slot="md-autocomplete-item" slot-scope="{ item, term }">
+                                {{ item.nom }}
+                            </template>
+                            <span class="md-error" v-if="!$v.form.cadastre.required">Le type cadastre est
+                                obligatoire</span>
+                        </md-autocomplete>
+                    </div>
+
+                    <div class="md-layout-item md-small-size-100 md-size-50">
+                        <md-field :class="getValidationClass($v.form.technicien_id)">
+                            <label for="technicien_id">Opérateur</label>
+                            <md-select name="technicien_id" id="technicien_id" v-model="form.technicien_id"
+                            :disabled="sending" required md-dense>
+                            <md-option v-for="item in operateurs_list" :key="item.id" :value="item.id">{{item.nom}}
+                            </md-option>
+                        </md-select>
+                        <span class="md-error" v-if="!$v.form.technicien_id.required">Le technicien est
+                            obligatoire</span>
+                        </md-field>
+                    </div>
+                </div>
+
+
+                <!-- Type d'affaire et affaire de base -->
+                <div class="md-layout md-gutter">
+                    <div class="md-layout-item md-small-size-100 md-size-50">
+                        <md-autocomplete v-model="form.type" 
+                            md-dense required
+                            @md-selected="onSelectType"
+                            :md-options="types_affaires_list"
+                            :class="getValidationClass($v.form.type)">
+                            <label>Type d'affaire</label>
+                            <template slot="md-autocomplete-item" slot-scope="{ item, term }">
+                                {{ item.nom }}
+                            </template>
+                            <span class="md-error" v-if="!$v.form.type.required">Le type d'affaire est
+                                obligatoire</span>
+                        </md-autocomplete>
+                    </div>
+
+                    <!-- Type de modification -->
+                    <div class="md-layout-item md-small-size-100 md-size-50"  v-if="type_modification_bool">
+                        <md-autocomplete v-model="form.affaire_modif_type" 
+                            md-dense required
+                            @md-selected="typeModifSelected"
+                            :md-options="typesModficiationAffaire_list"
+                            :class="getValidationClass($v.form.affaire_modif_type)">
+                            <label>Type de modification</label>
+                            <template slot="md-autocomplete-item" slot-scope="{ item, term }">
+                                {{ item.nom }}
+                            </template>
+                            <span class="md-error" v-if="!$v.form.affaire_modif_type.required">Le type de modification d'affaire est
+                                obligatoire</span>
+                        </md-autocomplete>
+                    </div>
+                </div>
+                
+                <div class="md-layout md-gutter" v-if="type_modification_bool">
+                    <div class="md-layout-item md-small-size-100 md-size-50">
+                        <md-field>
+                            <label>Affaire de base</label>
+                            <md-input v-model="form.affaire_base_id" required />
+
+                            <md-button class="md-primary md-icon-button modifAffaireActionBtn" title="Sélectionner cette affaire"
+                            v-if="type_modification_bool && this.form.affaire_base_id"
+                            @click="doSelectAffaireModification()">
+                            <md-icon>remove_red_eye</md-icon>
+                            </md-button>
+
+                            <md-button class="md-primary md-icon-button modifAffaireActionBtn" title="Afficher cette affaire" 
+                                v-if="type_modification_bool && this.form.affaire_base_id"
+                                @click="doOpenAffaireModification()">
+                                <md-icon>open_in_new</md-icon>
+                            </md-button>
+                        </md-field>
+                    </div>
+                </div>
+                
+                <!-- Description de l'affaire -->
+                <div class="md-gutter me-layout">
+                    <div class="md-layout-item md-size-100">
+                        <md-field>
+                            <label>Description</label>
+                            <md-input name="nom" id="nom" v-model="form.nom" :disabled="sending" />
+                        </md-field>
+                    </div>
+                </div>
+
+                <!-- Si type d'affaire est "modification, afficher la zone de de sélection des biens-fonds" -->
+                <div class="md-layout md-gutter" v-if="type_modification_bool">
+                    <md-card class="immeublesSelectDiv">
+                        <!-- Search Header -->
+                        <md-card-header>
+                            <div class="md-title">Sélection d'immeubles</div>
+                        </md-card-header>
+                 
+                        <md-card-expand-trigger>
+                          <md-button class="md-icon-button expandCollapseBtn" ref="expandCollapseBtn">
+                              <md-icon>keyboard_arrow_down</md-icon>
+                          </md-button>
+                       </md-card-expand-trigger>
+                 
+                        <!-- Search Content -->
+                        <md-card-expand>
+                            <md-card-expand-content>
+                                <md-card-content>
+                                    <div class="md-title" v-if="selectedModificationAffaire">Indiquer les immeubles à récupérer de l'affaire {{selectedModificationAffaire.id}} <span v-if="selectedModificationAffaire.nom != '-'">[{{ selectedModificationAffaire.nom }}]</span></div>
+                                    <br>                                   
+
+                                    <!-- Tableau des numéros concernés par l'affaire -->
+                                    <br/>
+                                    <strong>1 - Immeubles mutée / biens-fonds de base</strong>    
+                                    <br/><br/>        
+                                    <div v-if="affaire_numeros_anciens[0]">
+                                        <md-table v-model="affaire_numeros_anciens" md-sort="numero" md-sort-order="desc" @md-selected="onSelectNumsAnciens" md-fixed-header md-card>
+                                            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple">
+                                                <md-table-cell md-label="Numéro" md-sort-by="numero">{{ item.numero }}
+                                                    <span v-if="item.numero_suffixe !== null"> / {{ item.numero_suffixe }}</span>
+                                                </md-table-cell>
+                                                <md-table-cell md-label="Type" md-sort-by="numero_type">
+                                                    {{ item.numero_type }}
+                                                </md-table-cell>
+                                                <md-table-cell md-label="Etat" md-sort-by="numero_etat">
+                                                    {{ item.numero_etat }}
+                                                </md-table-cell>
+                                            </md-table-row>
+                                        </md-table>
+                                    </div>
+                                    <div v-else>
+                                        <em>Aucun numéro</em>
+                                    </div>
+
+                                    <!-- Tableau des numéros réservés dans l'affaire -->
+                                    <br/>
+                                    <strong>2 - Immeubles réservés</strong>
+                                    <br/><br/>   
+                                    <div v-if="affaire_numeros_nouveaux[0]">
+                                        <md-table v-model="affaire_numeros_nouveaux" md-sort="numero" md-sort-order="desc" @md-selected="onSelectNumsNouveux" md-fixed-header md-card>
+                                            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple">
+                                                <md-table-cell md-label="Numéro" md-sort-by="numero">{{ item.numero }}
+                                                    <span v-if="item.numero_suffixe !== null"> / {{ item.numero_suffixe }}</span>
+                                                </md-table-cell>
+                                                <md-table-cell md-label="Type" md-sort-by="numero_type">
+                                                    {{ item.numero_type }}
+                                                </md-table-cell>
+                                                <md-table-cell md-label="Etat" md-sort-by="numero_etat">
+                                                    {{ item.numero_etat }}
+                                                </md-table-cell>
+                                            </md-table-row>
+                                        </md-table>
+                                    </div>
+                                    <div v-else>
+                                        <em>Aucun numéro</em>
+                                    </div>
+
+                                </md-card-content>              
+                            </md-card-expand-content>
+                        </md-card-expand>
+                    </md-card>
+                </div>
+                
+                <br>
+
+                <!-- Remarques -->
+                <div class="md-layout md-gutter">
+                    <div class="md-layout-item md-small-size-100 md-size-100">
+                        <md-field>
+                            <label for="nom">Remarques</label>
+                            <md-textarea name="remarque" id="remarque" v-model="form.remarque"
+                            :disabled="sending" />
+                        </md-field>
+                    </div>
+                </div>
+                
+                <div style="text-align: right;">
+                    <md-button class="md-primary md-dense md-elevation-3" @click="initClientsList">Recharger la liste des clients <md-icon>replay</md-icon></md-button>
+                </div>
+                
+                <div v-if="showClientsForm">
+
+                    <!-- Client DEMANDEUR et ligne complément -->
+                    <div class="md-layout md-gutter md-alignment-center-left">
+                        <div class="md-layout-item md-small-size-100 md-size-100">
+                            <md-autocomplete id="client_commande" v-model="form.client_commande"
+                                :md-options="search_clients_list" md-dense
+                                @md-changed="searchClients(form.client_commande)"
+                                @md-selected="defaultCompleteClients(form.client_commande)"
+                                :class="getValidationClass($v.form.client_commande)"
+                                required>
+                                
+                                <label>Commandé par</label>
+                                <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                    Pas de client correspondant à la recherche "{{ term }}". <a @click="openCreateClient">Créer le client !</a>
+                                </template>
+                                <span class="md-error" v-if="!$v.form.client_commande.required">Le demandeur est obligatoire</span>
+                            </md-autocomplete>
+                        </div>
+
+                        <div class="md-layout-item md-size-50 md-small-size-100" v-if="showClientComplement(form.client_commande)">
+                            <md-autocomplete v-model="form.client_commande_complement"
+                                :md-options="client_moral_personnes.commande"
+                                md-dense>
+                                <label>À l'attention de...</label>
+                                <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                    Le contact "{{ term }}" n'existe pas dans la base. <a @click="openCreateContact(form.client_commande.id)">Le créer !</a>
+                                </template>
+                            </md-autocomplete>
+                        </div>
+                    </div>
+                    
+                    <!-- v-ref -->
+                    <div class="md-layout md-gutter">
+                        <div class="md-layout-item md-small-size-100 md-size-50">
+                            <md-field :class="getValidationClass($v.form.vref)">
+                                <label for="vref">v/ref</label>
+                                <md-input name="vref" id="vref" v-model="form.vref" :disabled="sending" />
+                            </md-field>
+                        </div>
+                    </div>
+
+                    <br>
+                    <md-divider style="background-color: blue;"></md-divider>
+                    
+                    <!-- Client ENVOI et ligne complément -->
+                    <div class="md-layout md-gutter md-alignment-center-left">
+                        <div class="md-layout-item md-small-size-100 md-size-100">
+                            <md-autocomplete id="client_envoi_id" v-model="form.client_envoi"
+                                :md-options="search_clients_list" md-dense
+                                @md-changed="searchClients(form.client_envoi)"
+                                @md-selected="initClientMoralPersonnes(form.client_envoi.id, 'envoi')"
+                                :class="getValidationClass($v.form.client_envoi)"
+                                required>
+                                
+                                <label>Envoyer à</label>
+                                <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                    Pas de client correspondant à la recherche "{{ term }}". <a @click="openCreateClient">Créer le client !</a>
+                                </template>
+                                <span class="md-error" v-if="!$v.form.client_envoi.required">Le client envoi est
+                                    obligatoire</span>
+                            </md-autocomplete>
+                        </div>
+                        
+                        <div class="md-layout-item md-small-size-100 md-size-50" v-if="showClientComplement(form.client_envoi)">
+                            <md-autocomplete v-model="form.client_envoi_complement"
+                                :md-options="client_moral_personnes.envoi"
+                                md-dense>
+                                <label>À l'attention de...</label>
+                                <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                    Le contact "{{ term }}" n'existe pas dans la base. <a @click="openCreateContact(form.client_envoi.id)">Le créer !</a>
+                                </template>
+                            </md-autocomplete>
+                        </div>
+                    </div>
+                    
+                    <br>
+                    <md-divider style="background-color: blue;"></md-divider>
+                    
+                    <!-- Client FACTURE et ligne complément -->
+                    <div class="md-layout md-gutter md-alignment-center-left">
+                        <div class="md-layout-item md-small-size-100 md-size-50">
+                            <md-field>
+                                <label>Hoirie... / PPE... (optionnel)</label>
+                                <md-input v-model="client_facture_premiere_ligne" />
+                            </md-field>
+                        </div>
+
+                        <div class="md-layout-item md-small-size-100 md-size-100">                            
+                            <md-autocomplete id="client_facture_id" v-model="client_facture"
+                                :md-options="search_clients_list" md-dense
+                                @md-changed="searchClients(client_facture)"
+                                @md-selected="initClientMoralPersonnes(client_facture.id, 'facture')"
+                                :class="getValidationClass($v.client_facture.id)"
+                                required>
+                                <label>Facturer à (débiteur)</label>
+                                <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                    Pas de client correspondant à la recherche "{{ term }}". <a @click="openCreateClient">Créer le client !</a>
+                                </template>
+                                <span class="md-error" v-if="!$v.client_facture.id.required">Le client facture est
+                                    obligatoire</span>
+                            </md-autocomplete>
+                        </div>
+
+                        <div class="md-layout-item md-small-size-100 md-size-50" v-if="showClientComplement(client_facture)">
+                            <md-autocomplete v-model="client_facture_complement"
+                                :md-options="client_moral_personnes.facture"
+                                md-dense>
+                                <label>À l'attention de...</label>
+                                <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                    Le contact "{{ term }}" n'existe pas dans la base. <a @click="openCreateContact(client_facture.id)">Le créer !</a>
+                                </template>
+                            </md-autocomplete>
+                        </div>
+                        
+                        <div class="md-layout-item md-size-100">
+                            <md-checkbox v-model="show_co">c/o (Envoyer à une adresse différente du débiteur)</md-checkbox>
+                        </div>
+                        <div class="md-layout-item md-small-size-100 md-size-100" v-if="show_co">
+                            <md-autocomplete v-model="client_facture_co"
+                                :md-options="search_clients_list" md-dense
+                                :class="getValidationClass($v.client_facture_co.id)"
+                                @md-changed="searchClients(client_facture_co)"
+                                required>
+                                <label>c/o</label>
+                                <template slot="md-autocomplete-empty" slot-scope="{ term }">
+                                    Pas de client correspondant à la recherche "{{ term }}". <a @click="openCreateClient">Créer le client !</a>
+                                </template>
+                                <span class="md-error" v-if="!$v.client_facture.id.required">L'adresse c/o est
+                                    obligatoire</span>
+                            </md-autocomplete>
+                        </div>
+                    </div>
+                    
+                    
+                    <md-divider style="background-color: blue;"></md-divider>
+                    <br />
+                </div>
+                
+                <!-- Dates -->
+                <div class="md-layout md-gutter">
+                    <div class="md-layout-item md-small-size-50 md-size-25">
+                        <md-datepicker v-model="form.date_ouverture" md-immediately
+                            :class="getValidationClass($v.form.date_ouverture)">
+                            <label>Date d'ouverture</label>
+                        </md-datepicker>
+                    </div>
+                </div>
+
+                <br />
+
+                <!-- Coordonnées -->
+                <div class="md-layout md-gutter">
+                    <div class="md-layout-item md-small-size-100">
+                        <md-field :class="getValidationClass($v.form.localisation)">
+                            <label for="localisation">Coordonnées</label>
+                            <md-input v-model=form.localisation readonly></md-input>
+                            <span class="md-error" v-if="!$v.form.localisation.required">La localisation de l'affaire est
+                                obligatoire</span>
+                        </md-field>
+
+                    </div>
+
+                    <div class="md-layout-item md-small-size-100">
+                        <autocomplete
+                        ref="autocomplete"
+                        placeholder="Rechercher un bien-fond"
+                        :source="searchSITNEndpoint"
+                        input-class="form-control"
+                        results-property="features"
+                        :results-display="formattedDisplay"
+                        @selected="handleSelectSITNItem"
+                        >
+                        </autocomplete>
+                    </div>
+                </div>
+
+                <div class="md-layout md-gutter mapHeight" id="mapContainer">
+                    <MapHandler ref="mapHandler" />
+                </div>
+            </md-card-content>
+
+            <md-card-actions>
+                <md-button class="md-raised" :disabled="sending" v-on:click="cancelEdit">Annuler</md-button>
+                <md-button type="submit" class="md-raised md-primary" :disabled="sending">Enregistrer</md-button>
+            </md-card-actions>
+        </md-card>
+
+        <md-snackbar :md-active.sync="dataSaved">L'affaire {{ lastRecord }} a été enregistrée avec succès</md-snackbar>
+    </form>
+</div>

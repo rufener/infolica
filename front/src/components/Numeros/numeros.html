@@ -1,5 +1,7 @@
 <div class="numeros">
-
+    <md-toolbar>
+        <h1 style="flex: 1;">Numéros</h1> 
+    </md-toolbar>
 
     <!-- Search -->
     <md-card>
@@ -19,28 +21,59 @@
             <md-card-expand-content>
                 <md-card-content>
                     <div class="md-layout md-gutter">
+                        <!-- Numéro -->
                         <div class="md-layout-item md-small-size-30">
-                            <md-autocomplete v-model="search.cadastre" :md-options="cadastre_liste">
+                            <md-field>
+                                <label>Numéro</label>
+                                <md-input type="number" v-model="search.numero"></md-input>
+                            </md-field>
+                        </div>
+                        <!-- Suffixe -->
+                        <div class="md-layout-item md-small-size-30">
+                            <md-field>
+                                <label>Suffixe/Unité</label>
+                                <md-input v-model="search.suffixe"></md-input>
+                            </md-field>
+                        </div>
+                        <!-- Mat diff -->
+                        <div class="md-layout-item md-small-size-30" style="text-align: center;">
+                            <md-checkbox v-model="search.matDiff" class="md-primary">Matérialisation différée</md-checkbox>
+                        </div>
+                    </div>
+
+                    <div class="md-layout md-gutter">
+                        <!-- Cadastre -->
+                        <div class="md-layout-item md-small-size-30">
+                            <md-autocomplete v-model="search.cadastre" :md-options="cadastre_liste" md-dense>
                                 <label>Cadastre</label>
+                                <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                    {{ item.nom }}
+                                </template>
                             </md-autocomplete>
                         </div>
-
+                        <!-- Type -->
                         <div class="md-layout-item md-small-size-30">
-                            <md-autocomplete v-model="search.type" :md-options="types_numeros">
+                            <md-autocomplete v-model="search.type" :md-options="types_numeros" md-dense>
                                 <label>Type</label>
+                                <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                    {{ item.nom }}
+                                </template>
                             </md-autocomplete>
                         </div>
-
+                        <!-- Etat -->
                         <div class="md-layout-item md-small-size-30">
-                            <md-autocomplete v-model="search.etat" :md-options="etats_numeros">
+                            <md-autocomplete v-model="search.etat" :md-options="etats_numeros" md-dense>
                                 <label>Etat</label>
+                                <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                    {{ item.nom }}
+                                </template>
                             </md-autocomplete>
                         </div>
                     </div>
 
                     <!-- Search Actions -->
                     <md-card-actions>
-                        <md-button class="md-raised" v-bind:disabled="!search.cadastre && !search.type && !search.etat" v-on:click="clearForm">Réinitialiser</md-button>
+                        <md-button class="md-raised" v-bind:disabled="!search.numero && !search.suffixe && !search.cadastre && !search.type && !search.etat" v-on:click="clearForm">Réinitialiser</md-button>
                         <md-button class="md-raised md-primary" v-on:click="searchNumeros">Rechercher</md-button>
                     </md-card-actions>
                 </md-card-content>
@@ -62,15 +95,16 @@
 
             <!-- Results Content -->
             <md-card-content>
-                <md-table v-model="numeros" md-sort="numero" md-sort-order="desc">
+                <md-table v-model="numeros" md-sort="numero" md-sort-order="desc" md-fixed-header>
                     <md-table-row slot="md-table-row" slot-scope="{ item }">
+                        <md-table-cell md-label="Id" md-sort-by="id" v-if="false">{{ item.id }}</md-table-cell>
                         <md-table-cell md-label="Cadastre" md-sort-by="cadastre">{{ item.cadastre }}</md-table-cell>
                         <md-table-cell md-label="Type" md-sort-by="type">{{ item.type_numero }}</md-table-cell>
-                        <md-table-cell md-label="Numero" md-sort-by="numero">{{ item.numero }}</md-table-cell>
-                        <md-table-cell md-label="Suffixe" md-sort-by="suffixe">{{ item.suffixe }}</md-table-cell>
+                        <md-table-cell md-label="Immeuble" md-sort-by="numero">{{ item.numero }}<span v-if="item.suffixe"> / {{ item.suffixe }}</span></md-table-cell>
+                        <!-- <md-table-cell md-label="Suffixe/Unité" md-sort-by="suffixe">{{ item.suffixe }}</md-table-cell> -->
                         <md-table-cell md-label="Etat" md-sort-by="etat">{{ item.etat }}</md-table-cell>
-                        <md-table-cell md-label="Actions" class="actionsColumn">
-                            <md-button class="md-icon-button md-raised md-primary">
+                        <md-table-cell md-label="Consulter" class="actionsColumn">
+                            <md-button class="md-icon-button md-primary" v-on:click="doOpenNumero(item.id)">
                                 <md-icon>open_in_new</md-icon>
                             </md-button>
                         </md-table-cell>

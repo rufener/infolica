@@ -1,0 +1,32 @@
+<div class="clotureAffaire">
+  <md-dialog :md-active.sync="showClotureDialog">
+    <md-dialog-title>Clôture de l'affaire</md-dialog-title>
+    
+    <md-dialog-content>
+      <p>Vérifier l'état des numéros</p>
+      <md-table v-model="affaire_numeros" md-sort="numero" md-sort-order="asc" md-card md-dense md-fixed-header>
+        <md-table-row slot="md-table-row" slot-scope="{ item }">
+          <md-table-cell md-label="id" md-sort-by="numero_id" v-if="false">{{ item.numero_id }}</md-table-cell>
+          <md-table-cell md-label="Cadastre" md-sort-by="numero_cadastre">{{ item.numero_cadastre }}</md-table-cell>
+          <md-table-cell md-label="Type" md-sort-by="numero_type">{{ item.numero_type }}</md-table-cell>
+          <md-table-cell md-label="Numéro" md-sort-by="numero" number>{{ item.numero }}</md-table-cell>
+          <md-table-cell md-label="Suffixe/Unité" md-sort-by="numero_suffixe">{{ item.numero_suffixe }}</md-table-cell>
+          <md-table-cell md-label="Etat" md-sort-by="numero_etat">{{ item.numero_etat }}</md-table-cell>
+          <md-table-cell md-label="Nouvel état" md-sort-by="numero_etatFutur_id">
+            <md-field>
+              <md-select v-model="item.numero_etatFutur_id" md-dense>
+                <md-option v-for="etat in numero_etats_liste" :key="etat.id" :value="etat.id">{{ etat.nom }}</md-option>
+              </md-select>
+            </md-field>
+          </md-table-cell>
+        </md-table-row>
+      </md-table>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button class="md-accent" @click="showClotureDialog=false">Annuler</md-button>
+      <md-button class="md-primary" @click="onConfirmCloture">Confirmer</md-button>
+    </md-dialog-actions>
+
+  </md-dialog>
+</div>

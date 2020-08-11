@@ -1,2 +1,4 @@
 .vscode/
 affaire_technique/
+/apache/app.wsgi
+/apache/wsgi.conf

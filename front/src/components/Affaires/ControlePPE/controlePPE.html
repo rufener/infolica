@@ -1,0 +1,380 @@
+<div class="controlePPE">
+    <md-card>
+        <md-card-header>
+            <div class="md-title">
+                <md-card-expand-trigger>
+                    <md-button class="md-icon-button expandCollapseBtn"
+                        @click.native="showNewControlePPEBtn = !showNewControlePPEBtn">
+                        <md-icon>keyboard_arrow_down</md-icon>
+                    </md-button>
+                </md-card-expand-trigger>
+                Contrôle PPE
+                <md-button class="md-primary newControlePPEBtn" v-on:click="newControlePPE()"
+                    v-if="needToCreateControlePPE && showNewControlePPEBtn && !affaireReadonly">Créer le contrôle</md-button>
+            </div>
+        </md-card-header>
+
+        <md-card-expand>
+            <md-card-expand-content>
+
+                <md-card-content v-bind:class="{ disabledElement: affaireReadonly }">
+                    <div v-if="controlePPE.id">
+                        <!-- Contrôle du dossier "Projet" -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Contrôle du dossier "Projet"</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.doss_proj_1">
+                                    Faisabilité de la PPE (projet de division, Bien-fonds en vigueur?)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.doss_proj_2">
+                                    Aucune PPE ne doit être déjà constituée sur le bien-fonds concerné
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Plan de situation -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Plan de situation</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.psit_1">
+                                    Contrôler la référence de la source des données cadastrales et de sa date d’émission
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.psit_2">
+                                    Nord, échelle <strong style="color: red;">1:500</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.psit_3">
+                                    Contenu du plan (bâtiment projet) et graphisme de la couche <strong
+                                        style="color: red;">bien-fonds</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.psit_4">
+                                    Contrôle de l'échelle (kutch)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.psit_5">
+                                    Cartouche <strong style="color: red;">(Cadastre de … PPE sur le bien-fonds …. – Plan de
+                                        situation - XXX, architecte, signature, date)</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.psit_6">
+                                    Droits de jouissance clairement définis (liseré traitillé même couleur que l'unité
+                                    concernée) <strong style="color: red;">"Droit de jouissance au profit de l'unité …"</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.psit_7">
+                                    Places de parcs extérieures numérotées (uniquement si les places ne sont pas
+                                    constituées en droit de jouissance)
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Plan des aménagements extérieurs -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Plan des aménagements extérieurs</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pamext_1">
+                                    Ce plan n'est pas un document obligatoire, mais si l'architecte décide de le joindre
+                                    avec le dossier le contrôle sera identique au plan de situation (<strong
+                                        style="color: red">Échelle ≠ 1:500</strong>)
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Plans d'étages -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Plans d'étages</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_1">
+                                    Nord (pas obligatoire), Échelle 1:100
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_2">
+                                    Contrôle de l'échelle (kutch)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_3">
+                                    Cartouche <strong style="color: red;">(Cadastre de … PPE sur le bien-fonds …, architecte,
+                                        signature, date)</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_4">
+                                    Cotes générales
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_5">
+                                    Informations superflues à supprimer (surfaces des pièces, matériaux, limites de
+                                    bien-fonds etc.)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_6">
+                                    Appellations des locaux
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_7">
+                                    Faisabilité d'unité d'étage: Un tout indépendant; Local physiquement fermé (surface
+                                    minimum); Certain degré d'autonomie économique; Accès propre
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_8">
+                                    Distribution lettres unités (de bas en haut / A, B, … Z, AA, AB etc.). Le "i" n'est
+                                    pas utilisé!
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_9">
+                                    Les annexes ont les mêmes lettres et mêmes couleurs de liserés que les unités
+                                    concernées. Chiffres arabe (EX A1, B3, D1 etc.)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_10">
+                                    Périmètres (liserés) des unités d'étages clairement dessinés (zone tampon / éviter
+                                    la couleur jaune)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_11">
+                                    Murs porteurs, piliers, poutres, gaines techniques etc ne font pas parties des
+                                    parties exclusives -> parties communes -> liserés de couleur
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_12">
+                                    Conditions pièce -> appellation <strong style="color: red;">"chambre"</strong>: Surface
+                                    minimum: 10m2; Surface éclairage ≥ 1/8ème surface plancher; Local physiquement fermé
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_13">
+                                    La pièce ne peut pas être considérée comme chambre -> <strong
+                                        style="color: red;">"disponible"</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_14">
+                                    Y a-t-il une surface plancher sous l'escalier ou un réduit (local fermé)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_15">
+                                    Les vides (escaliers, vide sur chambres, etc.) doivent être hachurés avec la même
+                                    couleur que l'unité concernée
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_16">
+                                    Accès aux parties communes par des parties privées (rares exceptions -> servitude de
+                                    passage)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_17">
+                                    Les balcons font partie de l'unité ou sont des droits de jouissance (parties
+                                    construites)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_18">
+                                    Autres bâtiments sur le bien-fonds concerné -> <strong style="color: red;">plans
+                                        d'étages, façades, coupes</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_19">
+                                    Concordance des appellations sur les plans d'étages avec les formules de légende
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_20">
+                                    Lignes de coupes sur tous les plans d'étages
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pet_21">
+                                    Surfaces PDF Viewer (tolérance jusqu'à 2 %)
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Plans de coupe -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Plan des aménagements extérieurs</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pco_1">
+                                    Échelle 1:100
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pco_2">
+                                    Sans liseré ni lettre d'unité
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pco_3">
+                                    Contrôle de l'échelle (kutch)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pco_4">
+                                    Cartouche <strong style="color: red;">(Cadastre de … PPE sur le bien-fonds ….,
+                                        architecte, signature, date)</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pco_5">
+                                    Les appellations, si notées sur les plans de coupe, doivent correspondre avec les
+                                    appellations des plans d'étages
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pco_6">
+                                    Concordance de la / les coupe(s) avec les plans d'étages (par plaquage)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.pco_7">
+                                    Informations superflues à supprimer (surfaces des pièces, matériaux, etc.)
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Façades -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Façades</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.facade_1">
+                                    Échelle 1:100
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.facade_2">
+                                    Cartouche <strong style="color: red;">(Cadastre de … PPE sur le bien-fonds ….,
+                                        architecte, signature, date)</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.facade_3">
+                                    Sans liseré ni lettre d'unité
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.facade_4">
+                                    Concordance avec tous les plans d'étages (ouvertures, portes, fenêtres, velux,
+                                    cheminées) -> plaquage
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Formule de légende -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Formule de légende</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_1">
+                                    Titres <strong style="color: red">(Cadastre de …– Plan de situation – XXX - PPE sur le
+                                        bien-fonds ….)</strong>
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_2">
+                                    Situation de l'unité juridique dans l'espace (appartement ouest, extrême ouest, N°
+                                    entrée etc.)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_3">
+                                    Étages clairement définis (1er étage, niveau -1, etc.) concordance avec les plans
+                                    d'étages
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_4">
+                                    Concordance entre les appellations des pièces sur les plans d'étages avec la formule
+                                    de légende
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_5">
+                                    Les éléments de liaison doivent être notés (escalier, escalier escamotable)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_6">
+                                    Appellations avec quantité (<strong style="color: red">1</strong> cuisine, <strong
+                                        style="color: red">3</strong> chambres etc.)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_7">
+                                    Mise en page (unités en duplex, Annexes etc.)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_8">
+                                    Concordance surfaces architecte avec surfaces obtenues par PDF Viewer (tol 2%)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.form_leg_9">
+                                    Récapitulatif
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Facture -->
+                        <md-card class="controlePPEForm">
+                            <md-card-content>
+                                <div class="md-title">Facture</div>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.fact_1">
+                                    1 mandat
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.fact_2">
+                                    X unités simples ou complexes (unités juridiques, annexes)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.fact_3">
+                                    Droits de jouissance X surfaces (seulement si les surfaces sont notées sur les plans d'étage)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.fact_4">
+                                    Régie (séances, renseignements, contrôle dossier supplémentaire etc)
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.fact_5">
+                                    Données numériques fournies ou plan de situation
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.fact_6">
+                                    Report des montants de la facture sur le formulaire de demande
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="controlePPE.fact_7">
+                                    Impression facture -> datée et signée
+                                </md-checkbox>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Visa et date -->
+                        <div class="md-layout md-gutter">
+                            <div class="md-layout-item md-size-25">
+                                <md-autocomplete v-model="controlePPE.visa" :md-options="chefsProjetMO_liste" md-dense>
+                                    <label>Visa</label>
+                                    <template slot="md-autocomplete-item" slot-scope="{ item }">
+                                        {{item.nom}}
+                                    </template>
+                                </md-autocomplete>
+                            </div>
+                            <div class="md-layout-item md-size-25">
+                                <md-datepicker v-model="controlePPE.date" md-immediately>
+                                    <label>Date</label>
+                                </md-datepicker>
+                            </div>
+                            <div class="md-layout md-alignment-bottom-right">
+                                <md-button class="md-accent md-raised" v-on:click="onCancelEditControlePPE" v-if="!affaireReadonly">
+                                    Annuler
+                                </md-button>
+
+                                <md-button class="md-primary md-raised md-top-right"
+                                    v-on:click="onConfirmEditControlePPE" v-if="!affaireReadonly">
+                                    Enregistrer
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <em>Aucun contrôle</em>
+                    </div>
+                </md-card-content>
+            </md-card-expand-content>
+        </md-card-expand>
+    </md-card>
+</div>

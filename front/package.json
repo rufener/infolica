@@ -5,25 +5,34 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "debug": "vue-cli-service inspect",
+    "lint": "vue-cli-service lint",
+    "preinstall": "npx npm-force-resolutions"
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "core-js": "^3.4.4",
-    "mdbvue": "^6.4.0",
+    "core-js": "^3.6.5",
+    "mdbvue": "^6.7.1",
+    "moment-timezone": "^0.5.31",
+    "numeral": "^2.0.6",
+    "ol": "^6.4.3",
+    "proj4": "^2.6.2",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.5",
-    "vue-material": "^1.0.0-beta-11",
-    "vue-router": "^3.1.5",
+    "vue-material": "^1.0.0-beta-14",
+    "vue-moment": "^4.1.0",
+    "vue-router": "^3.4.2",
+    "vuejs-auto-complete": "^0.9.0",
     "vuelidate": "^0.7.5"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.1.0",
-    "@vue/cli-plugin-eslint": "^4.1.0",
-    "@vue/cli-service": "^4.1.0",
-    "babel-eslint": "^10.0.3",
+    "@vue/cli-plugin-babel": "^4.4.6",
+    "@vue/cli-plugin-eslint": "^4.4.6",
+    "@vue/cli-service": "^4.4.6",
+    "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "minimist": "^1.2.5",
     "vue-template-compiler": "^2.6.10"
   },
   "eslintConfig": {
@@ -35,7 +44,9 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+      "no-console": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
@@ -43,5 +54,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "resolutions": {
+    "minimist": "^1.2.5"
+  }
 }

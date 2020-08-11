@@ -1,23 +1,24 @@
 <div class="login">
-    <div class="materialContainer">
-
-
-        <div class="box">     
-           <div class="title">LOGIN</div>
-     
-           <div class="input">              
-              <input type="text" name="username" id="username" ref="username" placeholder="Utilisateur" value="cko">
-              <span class="spin"></span>
-           </div>
-     
-           <div class="input">
-              <input type="password" name="userpass" id="userpass" ref="userpass" placeholder="Mot de passe" value="cko">
-              <span class="spin"></span>
-           </div>
-     
-           <div class="button login">
-              <button v-on:click="doLogin"><span>CONNEXION</span> <i class="fa fa-check"></i></button>
-           </div>     
-        </div>     
-     </div>
+   <div class="materialContainer">
+      <div class="box">
+         <div class="title">
+            LOGIN 
+            <span style="float: right;" v-if="showProgess"><md-progress-spinner md-mode="indeterminate" :md-diameter="40" :md-stroke="5" /></span>
+         </div>
+   
+         <div class="input">
+            <input type="text" name="username" id="username" ref="username" placeholder="Utilisateur" v-on:keyup.enter="doLogin">
+            <span class="spin"></span>
+         </div>
+   
+         <div class="input">
+            <input type="password" name="userpass" id="userpass" ref="userpass" placeholder="Mot de passe" v-on:keyup.enter="doLogin">
+            <span class="spin"></span>
+         </div>
+   
+         <div class="button login">
+            <button v-on:click="doLogin"><span>CONNEXION</span> <em class="fa fa-check"></em></button>
+         </div>
+      </div>
+   </div>
 </div>

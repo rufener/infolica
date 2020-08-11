@@ -1,0 +1,100 @@
+<div class="affairesDashboard" v-if="affaireLoaded">
+    
+    <!-- TITRE -->
+    <md-toolbar>
+        <h1 style="flex: 1;">
+            Affaire {{ affaire.id }}
+            <span v-if="affaire.no_access != null">[{{ affaire.no_access }}]</span>
+        </h1>
+        <md-button class="md-primary md-raised" v-if="editAffaireAllowed && false" v-on:click="duplicateAffaire">Modification / Visa</md-button>
+        <md-button class="md-accent md-raised" v-if="editAffaireAllowed && cloreAffaireEnabled" v-on:click="callClotureAffaire">Clôturer</md-button>
+    </md-toolbar>
+
+    <!-- INFORMATIONS GENERALES -->
+    <div class="leftColumn">
+        <InfosGenerales @modify-off="modifyOff" :affaire="affaire" :typesAffaires="typesAffaires" />
+    </div>
+
+
+    <!-- MAP -->
+    <div class="rightColumn">
+        <md-card class="mapHeight">
+            <md-card-content>
+                <!-- Afficher les oordonnées -->
+                <div class="md-layout md-gutter">
+                    <div class="md-layout-item md-size-30">
+                        <md-field>
+                            <label>Coordonnées</label>
+                            <md-input v-model="[affaire.localisation_e | 0, affaire.localisation_n | 0].join(' / ')"
+                                readonly>
+                            </md-input>    
+                        </md-field>    
+                    </div>
+                    <div style="text-align: right;" class="md-layout-item" v-if="affaire.type_id==typesAffaires.mutation">
+                        <md-button style="background-color: lightgray;" class="md-raised" @click="openSitnTheme('environnement')">Environnement</md-button>
+                        <md-button style="background-color: lightgray;" class="md-raised" @click="openSitnTheme('amenagement_territoire')">Aménagement du territoire</md-button>
+                    </div>
+                    <div id="mapContainer">
+                        <MapHandler ref="mapHandler" />
+                    </div>
+                </div>
+            </md-card-content>    
+        </md-card>    
+    </div> 
+    
+    <!-- PREAVIS -->
+    <div class="affairesDashboard" v-if="affaire.type_id==typesAffaires.mutation">
+        <preavis />
+    </div>
+    
+    <!-- NUMEROS -->
+    <div class="affairesDashboard">
+        <numerosAffaire :affaire="affaire" :typesAffaires="typesAffaires"/>
+    </div>
+    
+    <!-- FACTURATION -->
+    <div class="affairesDashboard">
+        <Facturation />
+    </div>
+
+    <!-- CONTROLE TECHNIQUE MUTATION -->
+    <div class="affairesDashboard">
+        <ControleMutation v-if="affaire.type_id==typesAffaires.mutation" />
+    </div>
+
+    <!-- CONTROLE TECHNIQUE PPE -->
+    <div class="affairesDashboard">
+        <ControlePPE v-if="affaire.type_id==typesAffaires.ppe" />
+    </div>
+
+    <!-- SUIVI DU MANDAT -->
+    <div class="affairesDashboard" v-if="affaire.type_id==typesAffaires.mutation">
+        <SuiviMandat />
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="affairesDashboard">
+        <Documents v-if="false" />
+    </div>
+
+    <!-- REMARQUE -->
+    <div class="affairesDashboard">
+        <Remarques />
+    </div>
+    
+    <!-- SUIVI D'AFFAIRE -->
+    <div class="affairesDashboard">
+        <suivi />
+    </div>
+
+    <!-- Duplication Affaire -->
+    <!-- <div>
+        <DuplicationAffaire ref="duplicationAffaireForm" :affaire="affaire"/>
+    </div> -->
+
+    <!-- Cloture Affaire -->
+    <div>
+        <ClotureAffaire ref="clotureAffaireForm"/>
+    </div>
+
+</div>

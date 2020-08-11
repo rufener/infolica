@@ -1,105 +1,195 @@
 <div class="numerosHistory">
-
-    <!-- Results -->
-    <div class="numerosResults">
-
-        <md-card>
-            <!-- Results Header -->
-            <md-card-header>
-                <div class="md-title">Consultation d'immeuble</div>
-            </md-card-header>
-
-
-            <!-- Search Content -->
-            <!-- Cadastre et Numéro -->
-            <md-card-content>
-                <div class="md-layout md-gutter">
-                    <div class="md-layout-item md-small-size-30">
-                        <md-autocomplete v-model="search.cadastre" :md-options="cadastre_liste">
-                            <label>Cadastre</label>
-                        </md-autocomplete>
-                    </div>
-
-                    <div class="md-layout-item md-small-size-30">
-                        <md-field>
-                            <label>Numéro</label>
-                            <md-input v-model="search.numero" type="number"></md-input>
-                        </md-field>
-                    </div>
+    <md-toolbar>
+        <h1 style="flex: 1;">Consultation d'immeuble</h1>
+        <md-button class="md-accent md-raised" @click="openEditionNumero" v-if="editNumeroAllowed">Editer</md-button>
+    </md-toolbar>
+    
+    <!-- EDITION DE NUMERO -->
+    <md-card v-if="editionActivated">
+        <!-- Cadastre et Numéro -->
+        <md-card-content>
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Cadastre</label>
+                        <md-input v-model="numero_edit.cadastre" readonly></md-input>
+                    </md-field>
                 </div>
-
-                <!-- Type et Suffixe -->
-                <div class="md-layout md-gutter">
-                    <div class="md-layout-item md-small-size-30">
-                        <md-field>
-                            <label>Type</label>
-                            <md-input v-model="numero.type_numero" readonly></md-input>
-                        </md-field>
-                    </div>
-                    <div class="md-layout-item md-small-size-30">
-                        <md-field>
-                            <label>Suffixe/Unité</label>
-                            <md-input v-model="numero.suffixe" readonly></md-input>
-                        </md-field>
-                    </div>
+                
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Immeuble</label>
+                        <md-input v-model="numero_edit.numero" readonly></md-input>
+                    </md-field>
                 </div>
-
-                <!-- Etat et Différé -->
-                <div class="md-layout md-gutter">
-                    <div class="md-layout-item md-small-size-30">
-                        <md-field>
-                            <label>Etat</label>
-                            <md-input v-model="numero.etat" readonly></md-input>
-                        </md-field>
-                    </div>
-                    <div class="md-layout-item md-small-size-30">
-                        <md-field>
-                            <label>Différé</label>
-                            <md-input v-model="numero.diff" readonly></md-input>
-                        </md-field>
-                    </div>
+            </div>
+            
+            <!-- Type et Suffixe -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Type</label>
+                        <md-input v-model="numero_edit.type_numero" readonly></md-input>
+                    </md-field>
                 </div>
-
-                <!-- Provenance et Destination -->
-                <div class="md-layout md-gutter">
-                    <div class="md-layout-item md-small-size-30">
-                        <md-field>
-                            <label>Provenance</label>
-                            <!-- <md-input v-model="" readonly></md-input> -->
-                        </md-field>
-                    </div>
-                    <div class="md-layout-item md-small-size-30">
-                        <md-field>
-                            <label>Destination</label>
-                            <!-- <md-input v-model="" readonly></md-input> -->
-                        </md-field>
-                    </div>
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Suffixe/Unité</label>
+                        <md-input v-model="numero_edit.suffixe" readonly></md-input>
+                    </md-field>
                 </div>
+            </div>
+            
+            <!-- Etat et Différé -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30 md-size-50">
+                    <md-autocomplete v-model="numero_edit.etat" :md-options="etatsNumeros" @md-selected="onSelectEtatNumero" md-dense>
+                        <label class="edit">Etat *</label>
+                        <template slot="md-autocomplete-item" slot-scope="{ item }">{{ item.nom }}</template>
 
-                <!-- Search Actions -->
-                <!-- <md-card-actions>
-                    <md-button class="md-raised" v-bind:disabled="!search.cadastre && !search.numero" v-on:click="clearForm">Réinitialiser</md-button>
-                    <md-button class="md-raised md-primary" v-on:click="getNumeroById">Rechercher</md-button>
-                </md-card-actions> -->
-            </md-card-content>
+                    </md-autocomplete>
+                </div>
+                <div class="md-layout-item md-small-size-30 md-size-15">
+                    <md-datepicker v-model="numero_edit.diff_entree" md-immediately><label  class="edit">Date diff entrée</label></md-datepicker>
+                </div>
+                <div class="md-layout-item md-small-size-30 md-size-15">
+                    <md-datepicker v-model="numero_edit.diff_sortie" md-immediately><label class="edit">Date diff sortie</label></md-datepicker>
+                </div>
+                <div class="md-layout-item md-small-size-30 md-size-10">
+                    <md-field>
+                        <label>Affaire</label>
+                        <md-input v-model="numero_edit.diff_affaire_id" readonly></md-input>
+                    </md-field>
+                </div>
+            </div>
+            
+            <!-- Provenance et Destination -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Provenance</label>
+                        <md-textarea v-model="numero_provenance" md-autogrow readonly></md-textarea>
+                    </md-field>
+                </div>
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Destination</label>
+                        <md-textarea v-model="numero_destination" md-autogrow readonly></md-textarea>
+                    </md-field>
+                </div>
+            </div>
+            
+            <div style="text-align: right;">
+                <md-button class="md-accent" @click="editionActivated = false">Annuler</md-button>
+                <md-button class="md-primary" @click="onConfirmEditNumero">Enregistrer</md-button>
+            </div>
+            
+        </md-card-content>
+        
+    </md-card>
+    
+
+    <!-- CONSULTATION DE NUMERO -->
+    <md-card v-else>
+        <!-- Cadastre et Numéro -->
+        <md-card-content>
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Cadastre</label>
+                        <md-input v-model="numero.cadastre" readonly></md-input>
+                    </md-field>
+                </div>
+                
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Immeuble</label>
+                        <md-input v-model="numero.numero" readonly></md-input>
+                    </md-field>
+                </div>
+            </div>
+            
+            <!-- Type et Suffixe -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Type</label>
+                        <md-input v-model="numero.type_numero" readonly></md-input>
+                    </md-field>
+                </div>
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Suffixe/Unité</label>
+                        <md-input v-model="numero.suffixe" readonly></md-input>
+                    </md-field>
+                </div>
+            </div>
+            
+            <!-- Etat et Différé -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30 md-size-50">
+                    <md-field>
+                        <label>Etat</label>
+                        <md-input v-model="numero.etat" readonly></md-input>
+                    </md-field>
+                </div>
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Différé</label>
+                        <md-input v-model="numero.diff" readonly></md-input>
+                    </md-field>
+                </div>
+                <div class="md-layout-item md-small-size-30 md-size-15" v-if="numero.diff_affaire_id">
+                    <md-field>
+                        <label>Affaire</label>
+                        <md-input v-model="numero.diff_affaire_id" readonly></md-input>
+                    </md-field>
+                </div>
+            </div>
+            
+            <!-- Provenance et Destination -->
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Provenance</label>
+                        <md-textarea v-model="numero_provenance" md-autogrow readonly></md-textarea>
+                    </md-field>
+                </div>
+                <div class="md-layout-item md-small-size-30">
+                    <md-field>
+                        <label>Destination</label>
+                        <md-textarea v-model="numero_destination" md-autogrow readonly></md-textarea>
+                    </md-field>
+                </div>
+            </div>
+
+        </md-card-content>
+
+    </md-card>
 
 
-            <!-- Affaires Content -->
-            <md-card-header>
-                <div class="md-title">Affaires</div>
-            </md-card-header>
 
-            <md-card-content>
-                <md-table v-model="numero_affaires" md-sort="affaire_date" md-sort-order="desc">
-                    <md-table-row slot="md-table-row" slot-scope="{ item }">
-                        <md-table-cell md-label="Index" md-sort-by="cadastre">{{ item.affaire_id }}</md-table-cell>
-                        <md-table-cell md-label="Affaire" md-sort-by="suffixe">{{ item.affaire_nom }}</md-table-cell>
-                        <md-table-cell md-label="Type" md-sort-by="numero">{{ item.affaire_type }}</md-table-cell>
-                        <md-table-cell md-label="Informaitons" md-sort-by="type">{{ item.affaire_information }}</md-table-cell>
-                    </md-table-row>
-                </md-table>
-            </md-card-content>
-        </md-card>
+    <md-card>
+        <!-- Affaires Content -->
+        <md-card-header>
+            <div class="md-title">Affaires</div>
+        </md-card-header>
 
-    </div>
+        <md-card-content>
+            <md-table v-model="numero_affaires" md-sort="affaire_date" md-sort-order="desc" md-fixed-header>
+                <md-table-row slot="md-table-row" slot-scope="{ item }">
+                    <md-table-cell md-label="Affaire" md-sort-by="affaire_id" style="width: 10%;">{{ item.affaire_id }}</md-table-cell>
+                    <md-table-cell md-label="Nom de l'affaire" md-sort-by="affaire_nom" style="width: 15%;">{{ item.affaire_nom }}</md-table-cell>
+                    <md-table-cell md-label="Type" md-sort-by="affaire_type" style="width: 20%;">{{ item.affaire_type }}</md-table-cell>
+                    <md-table-cell md-label="Date" md-sort-by="affaire_date" style="width: 10%;">{{ item.affaire_date | formatDate }}</md-table-cell>
+                    <md-table-cell md-label="Consulter" class="actionsColumn" style="width: 15%;">
+                        <md-button class="md-icon-button md-primary" v-on:click="doOpenAffaire(item.affaire_id)">
+                            <md-icon>open_in_new</md-icon>
+                        </md-button>
+                    </md-table-cell>
+                </md-table-row>
+            </md-table>
+        </md-card-content>
+    </md-card>
+    
 </div>

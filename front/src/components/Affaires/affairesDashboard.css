@@ -1,0 +1,37 @@
+.affairesDashboard {
+    width: 100%;
+    float: left;
+}
+
+.affairesDashboard .actionsColumn {
+    width: 150px !important;
+    min-width: 150px !important;
+}
+
+.affairesDashboard .expandCollapseBtn {
+    position: absolute;
+    left: 115px;
+    top: 22px;
+}
+
+.affairesDashboard .leftColumn {
+    float: left;
+    width: 49.7%;
+}
+
+.affairesDashboard .rightColumn {
+    float: right;
+    width: 49.7%;
+    height: 100%;
+}
+
+#mapContainer {
+    width: 100%;
+    height: 510px; /*valeur empirique*/
+  }
+
+.affairesDashboard .mapHeight {
+    height: 620px;
+}
+
+

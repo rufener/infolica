@@ -1,119 +1,181 @@
-from datetime import datetime
-from pyramid.view import view_config, exception_view_config
+# -*- coding: utf-8 -*--
+from pyramid.view import view_config
 import pyramid.httpexceptions as exc
-from sqlalchemy.exc import DBAPIError
 
-from .. import models
-import transaction
-from ..models import Constant
-from ..exceptions.custom_error import CustomError
-from ..scripts.utils import Utils
+from sqlalchemy import func
 
-import logging
-log = logging.getLogger(__name__)
+from infolica.exceptions.custom_error import CustomError
+from infolica.models.constant import Constant
+from infolica.models.models import Operateur
+from infolica.scripts.utils import Utils
+
+from datetime import datetime
 
 
-""" Return all operateurs"""
 @view_config(route_name='operateurs', request_method='GET', renderer='json')
 @view_config(route_name='operateurs_s', request_method='GET', renderer='json')
 def operateurs_view(request):
-    result = []
-    try:
-        query = request.dbsession.query(models.Operateur).all()
-        return Utils.serialize_many(query)
+    """
+    Return all operateurs
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
-    
+    query = request.dbsession.query(Operateur).all()
+    return Utils.serialize_many(query)
 
-""" Return operateur by id"""
+
 @view_config(route_name='operateur_by_id', request_method='GET', renderer='json')
 def operateur_by_id_view(request):
-    merged = None
-    try:
-        id = request.matchdict['id']
-        query = request.dbsession.query(models.Operateur).filter(
-            models.Operateur.id == id).first()
-        return Utils.serialize_one(query)
+    """
+    Return operateur by id
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    id = request.matchdict['id']
+    query = request.dbsession.query(Operateur).filter(
+        Operateur.id == id).first()
+    return Utils.serialize_one(query)
 
 
-""" Add new operateur"""
+@view_config(route_name='recherche_operateurs', request_method='POST', renderer='json')
+@view_config(route_name='recherche_operateurs_s', request_method='POST', renderer='json')
+def operateurs_search_view(request):
+    """
+    Search operateurs
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
+
+    settings = request.registry.settings
+    search_limit = int(settings['search_limit'])
+    conditions = Utils.get_search_conditions(Operateur, request.params)
+
+    # Check date_sortie is null
+    conditions = [] if not conditions or len(conditions) == 0 else conditions
+    conditions.append(Operateur.sortie == None)
+
+    query = request.dbsession.query(Operateur).order_by(Operateur.nom, Operateur.prenom).filter(
+        *conditions).limit(search_limit).all()
+    return Utils.serialize_many(query)
+
+
 @view_config(route_name='operateurs', request_method='POST', renderer='json')
 @view_config(route_name='operateurs_s', request_method='POST', renderer='json')
 def operateurs_new_view(request):
+    """
+    Add new operateur
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['fonction_admin']):
+        raise exc.HTTPForbidden()
+
     # Get operateur instance
-    model = Utils.set_model_record(models.Operateur(), request.params)
+    model = Utils.set_model_record(Operateur(), request.params)
 
-    try:
-        with transaction.manager:
-            request.dbsession.add(model)
-            request.dbsession.flush()
-            print("model.id = ", model.id)
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(models.Operateur.__tablename__))
+    request.dbsession.add(model)
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(Operateur.__tablename__))
 
 
-""" Update operateur"""
 @view_config(route_name='operateurs', request_method='PUT', renderer='json')
 @view_config(route_name='operateurs_s', request_method='PUT', renderer='json')
 def operateurs_update_view(request):
+    """
+    Update operateur
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['fonction_admin']):
+        raise exc.HTTPForbidden()
+
     # Get operateur_id
     id_operateur = request.params['id'] if 'id' in request.params else None
 
-    model = request.dbsession.query(models.Operateur).filter(
-        models.Operateur.id == id_operateur).first()
+    model = request.dbsession.query(Operateur).filter(
+        Operateur.id == id_operateur).first()
 
     # If result is empty
     if not model:
         raise CustomError(CustomError.RECORD_WITH_ID_NOT_FOUND.format(
-            models.Operateur.__tablename__, id_operateur))
+            Operateur.__tablename__, id_operateur))
 
     # Read params operateur
     model = Utils.set_model_record(model, request.params)
 
-    try:
-        with transaction.manager:
-
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(models.Operateur.__tablename__))
-
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(Operateur.__tablename__))
 
 
-""" Delete operateur"""
 @view_config(route_name='operateurs', request_method='DELETE', renderer='json')
 @view_config(route_name='operateurs_s', request_method='DELETE', renderer='json')
 def operateurs_delete_view(request):
+    """
+    Delete operateur
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['fonction_admin']):
+        raise exc.HTTPForbidden()
+
     # Get operateur_id
     id_operateur = request.params['id'] if 'id' in request.params else None
 
-    model = request.dbsession.query(models.Operateur).filter(
-        models.Operateur.id == id_operateur).first()
+    model = request.dbsession.query(Operateur).filter(
+        Operateur.id == id_operateur).first()
 
     # If result is empty
     if not model:
         raise CustomError(CustomError.RECORD_WITH_ID_NOT_FOUND.format(
-            models.Operateur.__tablename__, id_operateur))
+            Operateur.__tablename__, id_operateur))
 
     model.sortie = datetime.utcnow()
 
-    try:
-        with transaction.manager:
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_DELETE.format(models.Operateur.__tablename__))
+    return Utils.get_data_save_response(Constant.SUCCESS_DELETE.format(Operateur.__tablename__))
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
 
+@view_config(route_name='add_operateurs_ad', request_method='GET', renderer='json')
+@view_config(route_name='add_operateurs_ad_s', request_method='GET', renderer='json')
+def add_operateurs_ad_view(request):
+    """
+    Add nouveaux operateurs AD
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['fonction_admin']):
+        raise exc.HTTPForbidden()
+
+    settings = request.registry.settings
+    login_attr = settings['ldap_user_attribute_login']
+    op_added = 0
+
+    # Operateurs from AD
+    op_ad = Utils.get_nouveaux_operateurs_ad(request)
+
+    # Logins from DB
+    op_bd_logins = []
+    op_bd_logins_query = request.dbsession.query(Operateur).distinct(Operateur.login).filter(
+        Operateur.login.isnot(None)).all()
+    for c in op_bd_logins_query:
+        op_bd_logins.append(c.login.upper())
+
+    for one_ad_op in op_ad:
+        one_ad_op_login = one_ad_op[login_attr] if login_attr in one_ad_op else None
+
+        if one_ad_op_login and one_ad_op_login.upper() not in op_bd_logins:
+
+            one_op_model = Operateur(
+                login=one_ad_op[settings['ldap_user_attribute_login']],
+                nom=one_ad_op[settings['ldap_user_attribute_lastname']],
+                prenom=one_ad_op[settings['ldap_user_attribute_firstname']],
+                entree=func.now())
+
+            request.dbsession.add(one_op_model)
+            op_added = op_added + 1
+
+    if op_added > 0:
+        save_response = Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(Operateur.__tablename__))
+        save_response['count'] = op_added
+        return save_response
+    else:
+        raise exc.HTTPNoContent

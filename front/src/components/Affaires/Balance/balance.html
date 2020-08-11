@@ -1,0 +1,67 @@
+<div class="balance">
+    <md-card class="md-elevation-0">
+        <md-card-header>
+            <div class="md-title">Balance</div>
+            <!-- <md-button @click="initBFArrays" class="md-raised">Récupérer la balance</md-button> -->
+            <md-button @click="getBalanceFromFile" class="md-raised">Récupérer la balance</md-button>
+        </md-card-header>
+
+        <md-card-content v-if="numeros_relations_matrice[0]">
+            
+            <div style="text-align: center;">
+                Nouvel état
+            </div>
+
+            <div style="display: flex;">
+                <span class="verticalSpan">Ancien état</span>
+                <md-table v-model="numeros_relations_matrice" style="width: min-content;" md-card>
+                    <md-table-row slot="md-table-row" slot-scope="{ item }">
+                        <md-table-cell>{{ item.source_numero }}</md-table-cell>
+                        <md-table-cell v-for="(value, key) in item.destination" :md-label="key"><md-checkbox v-model="item.destination[key]" @change="updateNumerosRelations"></md-checkbox></md-table-cell>
+                    </md-table-row>
+                </md-table>
+            </div>
+
+            <div style="text-align: right;">
+                <md-button class="md-accent" @click="initBFArrays">Annuler</md-button>
+                <md-button class="md-primary" @click="saveBalance">Enregistrer</md-button>
+            </div>
+
+        </md-card-content>
+    </md-card>
+
+
+    <!-- Dialog confirm creation of old numbers -->
+    <md-dialog :md-active="showConfirmationCreateNumber"
+        @md-clicked-outside="showConfirmationCreateNumber = false"
+        style="z-index: 6;">
+        <md-dialog-title>Confirmer la création des numéros</md-dialog-title>
+        <md-dialog-content>
+            <p>Ces numéros n'existent pas encore dans la base de données d'Infolica.</p>
+
+            <md-table v-model="oldBF_toCreate" md-card md-fixed-header>
+                <md-table-row slot="md-table-row" slot-scope="{ item }">
+                    <md-table-cell md-label="Numero" md-sort-by="numero" md-numeric>{{ item.numero }}</md-table-cell>
+                    
+                    <md-table-cell md-label="Cadastre" md-sort-by="cadastre_id">
+                        <md-autocomplete v-model="item.cadastre" :md-options="cadastres_liste" md-dense>
+                            {{ item.nom }}
+                        </md-autocomplete>
+                    </md-table-cell>
+                    
+                    <md-table-cell md-label="Type" md-sort-by="type_id">
+                        <md-autocomplete v-model="item.type" :md-options="numeros_types_liste" md-dense>
+                            {{ item.nom }}
+                        </md-autocomplete>
+                    </md-table-cell>
+                </md-table-row>
+            </md-table>
+
+        </md-dialog-content>
+
+        <md-dialog-actions>
+            <md-button class="md-accent" @click="showConfirmationCreateNumber = false">Annuler</md-button>
+            <md-button class="md-primary" @click="onCreateOldBF">Enregistrer</md-button>
+        </md-dialog-actions>
+    </md-dialog>
+</div>

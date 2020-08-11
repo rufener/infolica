@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*--
 import argparse
 import sys
 
@@ -5,7 +6,6 @@ from pyramid.paster import bootstrap, setup_logging
 from sqlalchemy.exc import OperationalError
 
 from .. import models
-import datetime
 
 
 def setup_models(dbsession):
@@ -13,7 +13,7 @@ def setup_models(dbsession):
     Add or update models / fixtures in the database.
 
     """
-    model = models.mymodel.Operateur(nom='Toto', prenom='Toto')
+    model = models.model.Operateur(nom='Toto', prenom='Toto')
     dbsession.add(model)
 
 

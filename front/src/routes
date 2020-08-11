@@ -1,22 +1,31 @@
 
 import Affaires from './components/Affaires/Affaires.vue'
+import AffairesDashboard from './components/Affaires/AffairesDashboard.vue'
+import NewAffaire from './components/Affaires/NewAffaire/NewAffaire.vue'
 import Clients from './components/Clients/Clients.vue'
 import ClientsEdit from './components/Clients/ClientsEdit.vue'
+import Operateurs from './components/Operateurs/Operateurs.vue'
+import OperateursEdit from './components/Operateurs/OperateursEdit.vue'
 import Numeros from './components/Numeros/Numeros.vue'
 import NumerosHistory from './components/Numeros/NumerosHistory.vue'
 import About from './components/About/About.vue'
 import Login from './components/Login/Login.vue'
 
 const routes = [
-    { path: '/', component: Affaires, redirect:'/affaires' },    
-    { path: '/affaires', component: Affaires },
-    { path: '/clients', component: Clients },
-    { path: '/clients/new', component: ClientsEdit },
-    { path: '/clients/edit/{id}', component: ClientsEdit },
-    { path: '/login', component: Login },
-    { path: '/numeros', component: Numeros },
-    { path: '/numeros/:id', component: NumerosHistory },
-    { path: '/apropos', component: About }
+    { path: '/infolica/', component: Affaires, redirect:'/infolica/affaires', name: 'Home' },    
+    { path: '/infolica/affaires', component: Affaires, name: 'Affaires' },
+    { path: '/infolica/affaires/:id', component: AffairesDashboard, name: 'AffairesDashboard' },
+    { path: '/infolica/affaires_new', component: NewAffaire, name: 'NewAffaire' },
+    { path: '/infolica/clients', component: Clients, name: 'Clients' },
+    { path: '/infolica/clients/new', component: ClientsEdit, name: 'ClientsNew' },
+    { path: '/infolica/clients/edit/:id', component: ClientsEdit, name: 'ClientsEdit' },
+    { path: '/infolica/operateurs', component: Operateurs, name: 'Operateurs' },
+    { path: '/infolica/operateurs/new', component: OperateursEdit, name: 'OperateursNew' },
+    { path: '/infolica/operateurs/edit/:id', component: OperateursEdit, name: 'OperateursEdit' },
+    { path: '/infolica/login', component: Login, name: 'Login' },
+    { path: '/infolica/numeros', component: Numeros, name: 'Numeros' },
+    { path: '/infolica/numeros/:id', component: NumerosHistory, name: 'NumerosHistory' },
+    { path: '/infolica/apropos', component: About, name: 'About' }
 ];
 
 export default routes;

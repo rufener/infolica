@@ -1,0 +1,72 @@
+<div class="reservationNumeros">
+
+    <md-dialog :md-active.sync="showReservationDialog" md-confirm-text="Enregistrer" md-cancel-text="Annuler"
+        md-title="Réservation de numéros" :md-close-on-esc="true" :md-click-outside-to-close="true">
+        <md-dialog-title>Réservation de numéros</md-dialog-title>
+
+        <md-dialog-content>
+            <div class="md-layout md-gutter">
+                <!-- Cadastre -->
+                <div class="md-layout-item md-size-50">
+                    <md-autocomplete v-model="form.cadastre" :md-options="cadastre_liste"
+                        :class="getValidationClass('cadastre')" md-dense required>
+                        <label>Cadastre</label>
+                        <span class="md-error" v-if="!$v.form.cadastre.required">Le cadastre est obligatoire</span>
+                    </md-autocomplete>
+                </div>
+                <!-- Nombre de biens-fonds -->
+                <div class="md-layout-item md-size-50">
+                    <md-field :class="getValidationClass('nombre')">
+                        <label>Nombre de biens-fonds</label>
+                        <md-input style="text-align: right;"
+                            v-model="form.nombre"
+                            @focus="$event.target.select()"
+                            required type="number" />
+                        <span class="md-error" v-if="!$v.form.nombre.required">Combien de numéros faut-il réserver?</span>
+                        <span class="md-error" v-if="!$v.form.nombre.minValue">Réserver au moins un numéro</span>
+                    </md-field>
+                </div>
+            
+                <div class="md-layout-item md-size-50" v-if="affaire.reservation_numeros_types_id !== null &&
+                                                             (affaire.reservation_numeros_types_id.includes(types_numeros.ppe) ||
+                                                             affaire.reservation_numeros_types_id.includes(types_numeros.pcop))">
+                    <md-autocomplete :md-options="numerosBaseListeFiltered"
+                        v-model="form.numeroBase"
+                        @md-changed="filterNumeroBase"
+                        :class="getValidationClass('numeroBase')"
+                        md-dense>
+                        <label>Bien-fonds de base</label>
+                        <span class="md-error" v-if="!$v.form.numeroBase.required">Le numéro de base est obligatoire</span>
+                    </md-autocomplete>
+                </div>
+                
+                <div class="md-layout-item md-size-50" v-if="affaire.reservation_numeros_types_id !== null &&
+                                                             affaire.reservation_numeros_types_id.includes(types_numeros.ppe)">
+                    <md-field :class="getValidationClass('ppe_suffixe_start')">
+                        <label>Première unité (lettre)</label>
+                        <md-input v-model="form.ppe_suffixe_start"
+                                  onkeypress="return /[A-HJ-Z]/i.test(event.key)" 
+                                  maxlength="2" />
+                        <span class="md-error" v-if="!$v.form.ppe_suffixe_start.required">La lettre de la première unité à réserver est obligatoire</span>
+                    </md-field>
+                </div>
+            </div>
+
+            <md-dialog-actions>
+                <md-button class="md-accent" @click="onCancelReservationNumeros">Annuler</md-button>
+                <md-button class="md-primary" @click="onConfirmReservationNumeros">Enregistrer</md-button>
+            </md-dialog-actions>
+
+        </md-dialog-content>
+    </md-dialog>
+
+    <!-- Confirmation réservation grand nombre de numéros -->
+    <md-dialog-confirm :md-active.sync="alertReservation.show"
+        md-title="Confirmation de réservation"
+        :md-content="alertReservation.text"
+        md-confirm-text="Confirmer"
+        md-cancel-text="Annuler"
+        @md-cancel="alertReservation.show = false;"
+        @md-confirm="alertReservation.show = false; saveReservationNumeros()"
+    />
+</div>

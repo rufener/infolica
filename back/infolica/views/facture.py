@@ -1,116 +1,113 @@
+# -*- coding: utf-8 -*--
 from pyramid.view import view_config
 import pyramid.httpexceptions as exc
-from ..scripts.utils import Utils
-from ..models import Constant
-import transaction
 
-from sqlalchemy.exc import DBAPIError
-from ..exceptions.custom_error import CustomError
-
-from .. import models
-
-import logging
-log = logging.getLogger(__name__)
-
+from infolica.exceptions.custom_error import CustomError
+from infolica.models.constant import Constant
+from infolica.models.models import Facture, VFactures
+from infolica.scripts.utils import Utils
 
 ###########################################################
 # FACTURE
 ###########################################################
 
-""" Return all factures"""
+
 @view_config(route_name='factures', request_method='GET', renderer='json')
 @view_config(route_name='factures_s', request_method='GET', renderer='json')
 def factures_view(request):
-    try:
-        query = request.dbsession.query(models.Facture).all()
-        return Utils.serialize_many(query)
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    """
+    Return all factures
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
+
+    query = request.dbsession.query(VFactures).all()
+    return Utils.serialize_many(query)
 
 
-""" Return all factures in affaire"""
 @view_config(route_name='affaires_factures_by_affaire_id', request_method='GET', renderer='json')
 def affaires_factures_view(request):
+    """
+    Return all factures in affaire
+    """
+    # Check connected
+    if not Utils.check_connected(request):
+        raise exc.HTTPForbidden()
+
     affaire_id = request.matchdict["id"]
 
-    try:
-        query = request.dbsession.query(models.Facture)\
-            .filter(models.Facture.affaire_id == affaire_id).all()
-        return Utils.serialize_many(query)
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    query = request.dbsession.query(VFactures).filter(
+        VFactures.affaire_id == affaire_id
+    ).all()
+    return Utils.serialize_many(query)
 
 
-""" Add new facture"""
 @view_config(route_name='factures', request_method='POST', renderer='json')
 @view_config(route_name='factures_s', request_method='POST', renderer='json')
 def factures_new_view(request):
-    model = models.Facture()
+    """
+    Add new facture
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['affaire_facture_edition']):
+        raise exc.HTTPForbidden()
+
+    model = Facture()
     model = Utils.set_model_record(model, request.params)
 
-    try:
-        with transaction.manager:
-            request.dbsession.add(model)
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(models.Facture.__tablename__))
+    request.dbsession.add(model)
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(Facture.__tablename__))
 
 
-""" Update facture"""
 @view_config(route_name='factures', request_method='PUT', renderer='json')
 @view_config(route_name='factures_s', request_method='PUT', renderer='json')
 def factures_update_view(request):
+    """
+    Update facture
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['affaire_facture_edition']):
+        raise exc.HTTPForbidden()
+
     # id_facture
     id_facture = None
 
-    if 'id_facture' in request.params:
-        id_facture = request.params['id_facture']
+    if 'id' in request.params:
+        id_facture = request.params['id']
 
     # Get the facture
-    facture_record = request.dbsession.query(models.Facture).filter(
-        models.Facture.id == id_facture).first()
+    facture_record = request.dbsession.query(Facture).filter(
+        Facture.id == id_facture).first()
 
     if not facture_record:
         raise CustomError(
-            CustomError.RECORD_WITH_ID_NOT_FOUND.format(models.Facture.__tablename__, id_facture))
+            CustomError.RECORD_WITH_ID_NOT_FOUND.format(Facture.__tablename__, id_facture))
 
     facture_record = Utils.set_model_record(facture_record, request.params)
 
-    try:
-        with transaction.manager:
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(models.Facture.__tablename__))
-
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(Facture.__tablename__))
 
 
-""" Delete facture"""
-@view_config(route_name='facture_by_id', request_method='DELETE', renderer='json')
+@view_config(route_name='factures', request_method='DELETE', renderer='json')
+@view_config(route_name='factures_s', request_method='DELETE', renderer='json')
 def factures_delete_view(request):
+    """
+    Delete facture
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['affaire_facture_edition']):
+        raise exc.HTTPForbidden()
 
-    id = request.matchdict['id']
+    id = request.params['id'] if 'id' in request.params else None
 
-    query = request.dbsession.query(models.Facture)
-    facture = query.filter(models.Facture.id == id).first()
+    facture = request.dbsession.query(Facture).filter(Facture.id == id).first()
 
     if not facture:
         raise CustomError(
-            CustomError.RECORD_WITH_ID_NOT_FOUND.format(models.Facture.__tablename__, id))
-    try:
-        with transaction.manager:
-            request.dbsession.delete(facture)
-            transaction.commit()
-            return Utils.get_data_save_response(Constant.SUCCESS_DELETE.format(models.Facture.__tablename__))
+            CustomError.RECORD_WITH_ID_NOT_FOUND.format(Facture.__tablename__, id))
 
-    except DBAPIError as e:
-        log.error(e)
-        return exc.HTTPBadRequest(e)
+    request.dbsession.delete(facture)
 
-
+    return Utils.get_data_save_response(Constant.SUCCESS_DELETE.format(Facture.__tablename__))

@@ -1,0 +1,3 @@
+<div class="notifications">
+    <md-snackbar :md-active.sync="showSnackbar" v-bind:class="{ isErrorDiv: isError, isSuccessDiv: !isError }">{{ msg }}</md-snackbar>
+</div>

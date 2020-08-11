@@ -1,0 +1,190 @@
+<div class="suiviMandat">
+    <md-card>
+        <md-card-header>
+            <div class="md-title">
+                <md-card-expand-trigger>
+                    <md-button class="md-icon-button expandCollapseBtn"
+                        @click.native="showNewSuiviMandatBtn = !showNewSuiviMandatBtn">
+                        <md-icon>keyboard_arrow_down</md-icon>
+                    </md-button>
+                </md-card-expand-trigger>
+                Suivi du mandat (Validation du responsable des données cadastrales)
+                <md-button class="md-primary newSuiviMandatBtn" v-on:click="newSuiviMandat()"
+                    v-if="needToCreateSuiviMandat && showNewSuiviMandatBtn && !affaireReadonly">Créer le suivi</md-button>
+            </div>
+        </md-card-header>
+
+        <md-card-expand>
+            <md-card-expand-content>
+
+                <md-card-content v-bind:class="{ disabledElement: affaireReadonly }">
+                    <div v-if="suiviMandat.id">
+                        <!-- AVANT L'AFFAIRE -->
+                        <md-card class="suiviMandatForm">
+                            <md-card-content>
+                                <div class="md-title">Avant l'affaire</div>
+
+                                <md-checkbox class="md-primary" v-model="suiviMandat.av_21">
+                                    Création de l'affaire dans CATS
+                                </md-checkbox>
+
+                                <md-checkbox class="md-primary" v-model="suiviMandat.av_31">
+                                    Vérification par le chef de projet de la MO
+                                </md-checkbox>
+
+                                <div class="md-layout md-gutter" v-if="suiviMandat.av_31">
+                                    <div class="md-layout-item md-size-50">
+                                        <md-autocomplete v-model="suiviMandat.av_32" :md-options="chefsProjetMO_liste" md-dense>
+                                            <label>Chef de projet</label>
+                                        </md-autocomplete>
+                                    </div>
+                                    <div class="md-layout-item md-size-50">
+                                        <md-datepicker v-model="suiviMandat.av_33" md-immediately>
+                                            <label>Date de la vérification</label>
+                                        </md-datepicker>
+                                    </div>
+                                </div>
+
+                                <md-checkbox class="md-primary" v-model="suiviMandat.av_41">
+                                    Report date préavis SAT ou SEA
+                                </md-checkbox>
+
+                                <md-field>
+                                    <label>Informations complémentaires</label>
+                                    <md-textarea v-model="suiviMandat.av_51"></md-textarea>
+                                </md-field>
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- PENDANT L'AFFAIRE -->
+                        <md-card class="suiviMandatForm">
+                            <md-card-content>
+                                <div class="md-title">Pendant l'affaire</div>
+
+                                <md-checkbox class="md-primary" v-model="suiviMandat.pdt_11">
+                                    Contrôle des désignations et de la balance
+                                </md-checkbox>
+
+                                <md-field v-if="suiviMandat.pdt_11">
+                                    <label>Remarques</label>
+                                    <md-textarea v-model="suiviMandat.pdt_12"></md-textarea>
+                                </md-field>
+                                
+                                <md-checkbox class="md-primary" v-model="suiviMandat.pdt_21">
+                                    Contrôle du tableau des émoluments et report sur la demande
+                                </md-checkbox>
+
+                                <md-field v-if="suiviMandat.pdt_21">
+                                    <label>Remarques</label>
+                                    <md-textarea v-model="suiviMandat.pdt_22"></md-textarea>
+                                </md-field>
+
+                                <!-- <md-checkbox class="md-primary" v-model="suiviMandat.pdt_31">
+                                    Matérialisation différée (copie du plan de mutation)
+                                </md-checkbox> -->
+
+                                <md-checkbox class="md-primary" v-model="suiviMandat.pdt_41">
+                                    Contrôle de l'enregistrement de tous les documents (courriel, courrier, préavis, plan, etc.)
+                                </md-checkbox>
+                                
+                                <md-field v-if="suiviMandat.pdt_41">
+                                    <label>Remarques</label>
+                                    <md-textarea v-model="suiviMandat.pdf_42"></md-textarea>
+                                </md-field>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- APRES L'AFFAIRE -->
+                        <md-card class="suiviMandatForm">
+                            <md-card-content>
+                                <div class="md-title">Après l'affaire</div>
+
+                                <md-checkbox class="md-primary" v-model="suiviMandat.ap_11">
+                                    Respect des directives du SCAT, SAGR ou service urbanisme
+                                </md-checkbox>
+
+                                <md-field v-if="suiviMandat.ap_11">
+                                    <label>Remarques</label>
+                                    <md-textarea v-model="suiviMandat.ap_12"></md-textarea>
+                                </md-field>
+                                
+                                <md-checkbox class="md-primary" v-model="suiviMandat.ap_21">
+                                    Structure des répertoires et contenu
+                                </md-checkbox>
+
+                                <md-field v-if="suiviMandat.ap_21">
+                                    <label>Remarques</label>
+                                    <md-textarea v-model="suiviMandat.ap_22"></md-textarea>
+                                </md-field>
+                                
+                                <md-checkbox class="md-primary" v-model="suiviMandat.ap_31">
+                                    Génération de l'état descriptif pour Terris
+                                </md-checkbox>
+
+                                <div class="md-layout md-gutter" v-if="suiviMandat.ap_31">
+                                    <div class="md-layout-item md-size-50">
+                                        <md-autocomplete v-model="suiviMandat.ap_32" :md-options="chefsProjetMO_liste" md-dense>
+                                            <label>Chef de projet</label>
+                                        </md-autocomplete>
+                                    </div>
+                                    <div class="md-layout-item md-size-50">
+                                        <md-datepicker v-model="suiviMandat.ap_33" md-immediately>
+                                            <label>Date de la vérification</label>
+                                        </md-datepicker>
+                                    </div>
+                                </div>
+
+                                <md-checkbox class="md-primary" v-model="suiviMandat.ap_41">
+                                    Contrôle de la base de données
+                                </md-checkbox>
+
+                                <md-field v-if="suiviMandat.ap_41">
+                                    <label>Remarques</label>
+                                    <md-textarea v-model="suiviMandat.ap_42"></md-textarea>
+                                </md-field>
+
+                            </md-card-content>
+                        </md-card>
+
+                        <!-- Visa et date -->
+                        <div class="md-layout md-gutter">
+                            <div class="md-layout-item md-size-25">
+                                <md-autocomplete v-model="suiviMandat.visa" :md-options="chefsProjetMO_liste" md-dense>
+                                    <label>Visa</label>
+                                </md-autocomplete>
+                            </div>
+                            <div class="md-layout-item md-size-25">
+                                <md-datepicker v-model="suiviMandat.date" md-immediately>
+                                    <label>Date</label>
+                                </md-datepicker>
+                            </div>
+                            <div class="md-layout md-alignment-bottom-right">
+                                <md-button class="md-accent md-raised" v-on:click="onCancelEditSuiviMandat" v-if="!affaireReadonly">
+                                    Annuler
+                                </md-button>
+    
+                                <md-button class="md-primary md-raised md-top-right" v-on:click="onConfirmEditSuiviMandat" v-if="!affaireReadonly">
+                                    Enregistrer
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <em>Aucun suivi</em>
+                    </div>
+                </md-card-content>
+            </md-card-expand-content>
+        </md-card-expand>
+    </md-card>
+
+    <md-dialog-confirm
+    :md-active.sync="confirmDialogActive"
+    md-title="Date de validation"
+    md-content="Mettre à jour la date de validation de l'affaire?"
+    md-confirm-text="Oui"
+    md-cancel-text="Non"
+    @md-cancel="confirmDialogActive = false"
+    @md-confirm="updateAffaireDateValidation" />
+
+</div>

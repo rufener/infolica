@@ -14,23 +14,22 @@ pyramid.default_locale_name = en
 pyramid.includes =
     pyramid_debugtoolbar
 
-## CHANGER ICI
-sqlalchemy.url = postgresql://username:password@host:port/database
-
+#############################################
+# Les informations de connexion à la BD
+#############################################
+sqlalchemy.url = postgresql://users:password@host/infolica
 
 #############################################
 # Les informations de connexion au LDAP
 #############################################
-
 # L'URL de LDAP et le numéro de port
-## CHANGER ICI
-ldap_url = ldap://XX.X.X.XXX:XXX
+ldap_url = ldap://host:port
 
 # Le bind utilisé par la connexion
 ldap_bind= cn=Manager,dc=maxcrc,dc=com
 
 # Le mot de passe du bind utilisé par la connexion
-ldap_passwd= 
+ldap_passwd= password
 
 
 ###########################################################
@@ -48,6 +47,16 @@ ldap_login_query_attributes= uid, givenName, sn, mail, telephoneNumber, mobile
 
 # Le scope de la recherche (LEVEL, SUBTREE)
 ldap_login_query_scope= SUBTREE
+
+# L'attribut qui correspond au login d'un utilisateur LDAP
+ldap_user_attribute_login= uid
+
+# Les autres attributs d'un utilisateur LDAP
+ldap_user_attribute_firstname= givenName
+ldap_user_attribute_lastname= sn
+ldap_user_attribute_telephone= telephoneNumber
+ldap_user_attribute_mail= mail
+ldap_user_attribute_mobile= mobile
 
 
 ###########################################################
@@ -69,10 +78,89 @@ ldap_group_query_scope=SUBTREE
 # Les attributs à retourner
 ldap_group_attributes=cn, ou,member
 
+# L'attribut qui correspond à l'identifiant d'un groupe LDAP
+ldap_group_attribute_id= cn
+
+# Les informations de recherche d'un utilisateur LDAP
+ldap_search_user_filter=(objectClass=person)
+
+# Le préfixe des groupes infolica
+infolica_groups_prefix= INFOLICA_
+
+# Le préfixe des groupes infolica
+infolica_group_to_avoid= /*TO COMPLETE*/
+
 ######################################################################################
 # Le nombre max des résultats retournés par la recherche
 ######################################################################################
 search_limit = 20
+
+
+######################################################################################
+# Les différentes permissions (fonctions)
+######################################################################################
+fonction_admin = fonction_admin
+affaire_edition = affaire_edition
+affaire_ppe_edition = affaire_ppe_edition
+affaire_revision_abornement_edition = affaire_revision_abornement_edition
+affaire_cadastration_edition = affaire_cadastration_edition
+affaire_envois_edition = affaire_envois_edition
+affaire_controle_edition = affaire_controle_edition
+affaire_suivi_edition = affaire_suivi_edition
+affaire_remarque_edition = affaire_remarque_edition
+affaire_etape_edition = affaire_etape_edition
+affaire_facture_edition = affaire_facture_edition
+affaire_preavis_edition = affaire_preavis_edition
+affaire_numero_edition = affaire_numero_edition
+client_edition = client_edition
+
+######################################################################################
+# Variables tirées de la base de données
+######################################################################################
+# Affaire types id
+affaire_type_cadastration_id = 2
+affaire_type_ppe_id = 3
+affaire_type_revision_abornement_id = 4
+
+# ID Numéros-types biens-fonds
+numero_bf_id = 1
+numero_ddp_id = 2
+numero_ppe_id = 3
+numero_pcop_id = 4
+numero_pfp3_id = 5
+numero_bat_id = 6
+numero_pcs_id = 7
+numero_paux_id = 8
+numero_pdet_id = 9
+numero_dp_id = 10
+
+# ID états des numéros
+numero_projet_id = 1
+numero_vigueur_id = 2
+numero_abandonne_id = 3
+numero_supprime_id = 4
+numero_artefact_id = 5
+
+# ID Affaire-numero-type
+affaire_numero_type_ancien_id = 1
+affaire_numero_type_nouveau_id = 2
+
+# ID cadastres-binômes pour la réservation de numéros
+cadastres_ChauxDeFonds_Eplatures_id = 60, 70
+cadastres_BrotPlamboz_Plamboz_id = 59, 69
+cadastres_Neuchatel_Coudre_id = 1, 63
+cadastres_Sauge_StAubin_id = 22, 67
+
+######################################################################################
+# Accès aux dossiers
+######################################################################################
+affaires_directory = /path/to/affaires_directory
+access_control_allow_origin = http://127.0.0.1:8080
+mails_templates_directory = /path/to/mail_templates_dorectory
+temporary_directory = /path/to/temporary_directory
+
+fichier_balance_prefix = Des_
+
 
 retry.attempts = 3
 

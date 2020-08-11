@@ -3,7 +3,6 @@
 
 
 <script>
-import {checkLogged} from '@/services/helper'
 
 export default {
   name: 'About',
@@ -12,8 +11,8 @@ export default {
   },
 
   mounted: function(){
-    checkLogged();
-  }
+
+}
 }
 </script>
 

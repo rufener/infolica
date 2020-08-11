@@ -1,0 +1,64 @@
+<div class="operateursEdit">
+
+  <md-toolbar :md-elevation="1">
+    <span class="md-title">Opérateur</span>
+  </md-toolbar>
+
+  <form novalidate class="md-layout" @submit.prevent="validateForm">
+    <md-card class="md-layout-item md-size-100 md-small-size-100">
+      <md-card-content>
+
+        <!-- Nom et prénom -->
+        <div class="md-layout md-gutter">
+          <div class="md-layout-item md-small-size-100 md-size-50">
+            <md-field :class="getValidationClass('nom')">
+              <label for="nom">Nom *</label>
+              <md-input name="nom" id="nom" v-model="form.nom" :disabled="sending" />
+              <span class="md-error" v-if="!$v.form.nom.required">Le nom est obligatoire</span>
+            </md-field>
+          </div>
+
+          <div class="md-layout-item md-small-size-100 md-size-50">
+            <md-field :class="getValidationClass('prenom')">
+              <label for="prenom">Prénom *</label>
+              <md-input name="prenom" id="prenom" v-model="form.prenom" :disabled="sending" />
+              <span class="md-error" v-if="!$v.form.prenom.required">Le prénom est obligatoire</span>
+            </md-field>
+          </div>
+        </div>
+
+        <!-- login et responsable -->
+        <div class="md-layout md-gutter">
+          <div class="md-layout-item md-small-size-100 md-size-50">
+            <md-field>
+              <label for="login">Login</label>
+              <md-input name="login" id="login" v-model="form.login" :disabled="sending" />
+            </md-field>
+          </div>
+
+          <div class="md-layout-item md-small-size-100 md-size-50">
+            <md-checkbox name="responsable" id="responsable" v-model="form.responsable" :disabled="sending">Responsable
+            </md-checkbox>
+          </div>
+        </div>
+
+        <!-- Date d'entrée -->
+        <div class="md-layout md-gutter">
+          <div class="md-layout-item md-small-size-100 md-size-25">
+            <md-datepicker v-model="form.entree" md-immediately :class="getValidationClass('entree')">
+              <label>Date d'entrée *</label>
+            </md-datepicker>
+          </div>
+        </div>
+
+      </md-card-content>
+      <md-progress-bar md-mode="indeterminate" v-if="sending" />
+
+      <md-card-actions>
+        <md-button class="md-raised" :disabled="sending" v-on:click="cancelEdit">Annuler</md-button>
+        <md-button type="submit" class="md-raised md-primary" :disabled="sending">Enregistrer</md-button>
+      </md-card-actions>
+    </md-card>
+
+  </form>
+</div>
