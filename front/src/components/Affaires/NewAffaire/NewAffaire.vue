@@ -1135,7 +1135,44 @@ export default {
     /**
      * Récupérer la sélection des anciens numéros
      */
-    onSelectNumsAnciens(items) {
+    async onSelectNumsAnciens(items) {
+      let liste_numeros_id = [];
+      items.forEach(x => {
+        liste_numeros_id.push(x.numero_id);
+      });
+
+      let formData = new FormData();
+      formData.append('liste_numeros_id', JSON.stringify(liste_numeros_id));
+      formData.append('affaire_id', this.form.affaire_base_id);
+
+      this.$http.post(
+        process.env.VUE_APP_API_URL + process.env.VUE_APP_BALANCE_PARTIELLE_ENDPOINT,
+        formData,
+        {
+          withCredentials: true,
+          headers: {Accept: "application/json"}
+        }
+      ).then(response => {
+        if (response && response.data) {
+          response.data.forEach(x => {
+            if (x.affaire_numero_type_id === 1) {
+              this.affaire_numeros_anciens.filter(y => {
+                if (y.id === x.id) {
+                  this.selectedAnciensNumeros.push(y);
+                }
+              });
+            }
+            if (x.affaire_numero_type_id === 2) {
+              this.affaire_numeros_nouveaux.filter(y => {
+                if (y.id === x.id) {
+                  this.selectedNouveauxNumeros.push(y);
+                }
+              });
+            }
+          })
+        }
+      }).catch(err => this.handleException(err, this));
+
       this.selectedAnciensNumeros = items;
     },
 

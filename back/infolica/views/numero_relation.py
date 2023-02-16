@@ -5,9 +5,11 @@ import pyramid.httpexceptions as exc
 from infolica.exceptions.custom_error import CustomError
 from infolica.models.constant import Constant
 from infolica.models.models import NumeroRelation, VNumerosRelations
+from infolica.models.models import VNumerosAffaires
 from infolica.scripts.utils import Utils
 from infolica.scripts.authentication import check_connected
 from sqlalchemy import and_
+import json
 
 
 @view_config(route_name='numeros_relations', request_method='GET', renderer='json')
@@ -167,3 +169,58 @@ def numeros_relations_delete_view(request):
     request.dbsession.delete(model)
 
     return Utils.get_data_save_response(Constant.SUCCESS_SAVE.format(NumeroRelation.__tablename__))
+
+
+@view_config(route_name='balance_partielle', request_method='POST', renderer='json')
+def balance_partielle_view(request):
+    """
+    Get balance partielle
+    """
+    # Check authorization
+    if not Utils.has_permission(request, request.registry.settings['affaire_numero_edition']):
+        raise exc.HTTPForbidden()
+
+    liste_numeros_id = json.loads(request.params['liste_numeros_id']) if 'liste_numeros_id' in request.params else None
+    affaire_id = request.params['affaire_id'] if 'affaire_id' in request.params else None
+
+    nr_req = request.dbsession.query(
+        NumeroRelation
+    ).filter(
+        NumeroRelation.affaire_id == affaire_id
+    )
+
+    balance_partielle = []
+    liste_numeros_parcourus = []
+    c = 0
+
+    while c < len(liste_numeros_id) and set(liste_numeros_parcourus).issubset(set(liste_numeros_id)):
+        actual_number_id = liste_numeros_id[c]
+        liste_numeros_parcourus.append(actual_number_id)
+
+        related_nums_bases = nr_req.filter(
+            NumeroRelation.numero_id_associe == actual_number_id
+        ).all()
+
+        related_nums_associes = nr_req.filter(
+            NumeroRelation.numero_id_base == actual_number_id,
+        ).all()
+
+        for related_num in related_nums_bases:
+            if related_num.numero_id_base not in liste_numeros_id and not related_num.numero_id_base in [1, 2]:
+                liste_numeros_id.append(related_num.numero_id_base)
+        
+        for related_num in related_nums_associes:
+            if related_num.numero_id_associe not in liste_numeros_id and not related_num.numero_id_associe in [1, 2]:
+                liste_numeros_id.append(related_num.numero_id_associe)
+
+        c += 1
+
+
+    balance_partielle = request.dbsession.query(
+        VNumerosAffaires
+    ).filter(
+        VNumerosAffaires.affaire_id == affaire_id,
+        VNumerosAffaires.numero_id.in_(liste_numeros_id)
+    ).all()
+
+    return Utils.serialize_many(balance_partielle)

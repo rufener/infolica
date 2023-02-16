@@ -146,15 +146,9 @@
                                 <div v-if="affaire_numeros_anciens[0]">
                                     <md-table v-model="affaire_numeros_anciens" md-sort="numero" md-sort-order="desc" @md-selected="onSelectNumsAnciens" md-fixed-header md-card :md-selected-value.sync="selectedAnciensNumeros">
                                         <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple">
-                                            <md-table-cell md-label="Numéro" md-sort-by="numero">{{ item.numero }}
-                                                <span v-if="item.numero_suffixe !== null"> / {{ item.numero_suffixe }}</span>
-                                            </md-table-cell>
-                                            <md-table-cell md-label="Type" md-sort-by="numero_type">
-                                                {{ item.numero_type }}
-                                            </md-table-cell>
-                                            <md-table-cell md-label="Etat" md-sort-by="numero_etat">
-                                                {{ item.numero_etat }}
-                                            </md-table-cell>
+                                            <md-table-cell md-label="Numéro" md-sort-by="numero">{{ item.numero }}<span v-if="item.numero_suffixe !== null"> / {{ item.numero_suffixe }}</span></md-table-cell>
+                                            <md-table-cell md-label="Type" md-sort-by="numero_type">{{ item.numero_type }}</md-table-cell>
+                                            <md-table-cell md-label="Etat" md-sort-by="numero_etat">{{ item.numero_etat }}</md-table-cell>
                                         </md-table-row>
                                     </md-table>
                                 </div>
@@ -167,17 +161,11 @@
                                 <strong>2 - Immeubles réservés</strong>
                                 <br/><br>
                                 <div v-if="affaire_numeros_nouveaux[0]">
-                                    <md-table v-model="affaire_numeros_nouveaux" md-sort="numero" md-sort-order="desc" @md-selected="onSelectNumsNouveux" md-fixed-header md-card :md-selected-value.sync="selectedNouveauxNumeros">
+                                    <md-table v-model="affaire_numeros_nouveaux" md-sort="numero" md-sort-order="desc" @md-selected="onSelectNumsAnciens" md-fixed-header md-card :md-selected-value.sync="selectedNouveauxNumeros">
                                         <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple">
-                                            <md-table-cell md-label="Numéro" md-sort-by="numero">{{ item.numero }}
-                                                <span v-if="item.numero_suffixe !== null"> / {{ item.numero_suffixe }}</span>
-                                            </md-table-cell>
-                                            <md-table-cell md-label="Type" md-sort-by="numero_type">
-                                                {{ item.numero_type }}
-                                            </md-table-cell>
-                                            <md-table-cell md-label="Etat" md-sort-by="numero_etat">
-                                                {{ item.numero_etat }}
-                                            </md-table-cell>
+                                            <md-table-cell md-label="Numéro" md-sort-by="numero">{{ item.numero }}<span v-if="item.numero_suffixe !== null"> / {{ item.numero_suffixe }}</span></md-table-cell>
+                                            <md-table-cell md-label="Type" md-sort-by="numero_type">{{ item.numero_type }}</md-table-cell>
+                                            <md-table-cell md-label="Etat" md-sort-by="numero_etat">{{ item.numero_etat }}</md-table-cell>
                                         </md-table-row>
                                     </md-table>
                                 </div>
