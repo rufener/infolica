@@ -9,7 +9,7 @@
             </div>
         </md-toolbar>
 
-        
+
         <div class="preavisContent">
             <md-card style="background-color: orange;" v-if="affaire.remarque_warning">
                 <md-card-content style="padding: 16px;">
@@ -60,7 +60,7 @@
                                 </tbody>
                             </table>
                         </div>
-        
+
                         <div class="md-layout-item md-size-50">
                             <div style="text-align: right;">
                                 Raccourcis sur le SITN:
@@ -76,63 +76,107 @@
                     </div>
                 </md-card-content>
             </md-card>
-        
-        
+
             <md-card>
                 <md-card-header>
-                    <div class="md-title">Documents</div>
+                    <div class="md-title">
+                        <md-card-expand-trigger>
+                            <md-button class="md-icon-button">
+                                <md-icon>keyboard_arrow_down</md-icon>
+                            </md-button>
+                        </md-card-expand-trigger>
+                        Autres préavis ({{ preavisList.length }})
+                    </div>
                 </md-card-header>
-                <md-card-content>
-                    <div class="md-layout md-gutter md-alignment-top-space-between">
-                        <div class="md-layout-item md-size-65">
-                            <md-table v-model="documents" md-sort="filename" md-sort-order="asc" md-fixed-header md-card>
-                                <md-table-empty-state md-label="Aucun document"></md-table-empty-state>
-                                
+
+                <md-card-expand>
+                    <md-card-expand-content>
+                        <md-card-content>
+                            <md-table v-model="preavisList" md-fixed-header md-card>
+                                <md-table-empty-state md-label="Aucun préavis"></md-table-empty-state>
+
                                 <md-table-row slot="md-table-row" slot-scope="{ item }">
-                                    <md-table-cell style="width: 40%;" md-label="Fichier" md-sort-by="filename">{{ item.filename }}</md-table-cell>
-                                    <md-table-cell style="width: 15%;" md-label="Taille" md-sort-by="size" md-numeric>{{ item.size }}</md-table-cell>
-                                    <md-table-cell style="width: 25%;" md-label="Modification" md-sort-by="modification_sort">{{ item.modification }}</md-table-cell>
-                                    <md-table-cell style="width: 20%;" md-label="Actions">
-                                        <md-button class="md-icon-button md-dense md-primary" @click="downloadFile(item)">
-                                            <md-icon>save_alt</md-icon>
-                                        </md-button>
-                                    </md-table-cell>
+                                    <md-table-cell md-label="id" md-sort-by="id" v-if="false">{{ item.id }}</md-table-cell>
+                                    <md-table-cell md-label="id" md-sort-by="id" >{{ item.id }}</md-table-cell>
+                                    <md-table-cell md-label="Service" md-sort-by="service" style="min-width: 100px;"><div v-if="item.unread_remarks > 0"><md-badge :md-content="item.unread_remarks" md-dense><span style="padding-right: 20px;">{{ item.service }}</span></md-badge></div><div v-else>{{ item.service }}</div></md-table-cell>
+                                    <md-table-cell md-label="Demande" md-sort-by="date_demande" style="min-width: 100px;">{{ item.date_demande | formatDate }}</md-table-cell>
+                                    <md-table-cell md-label="Réponse" md-sort-by="date_reponse" style="min-width: 100px;">{{ item.date_reponse | formatDate }}</md-table-cell>
+                                    <md-table-cell md-label="Préavis" md-sort-by="preavis_type" style="min-width: 100px;">{{ item.preavis_type }}</md-table-cell>
+                                    <md-table-cell md-label="Remarque" style="min-width: 1000px;"><span style="white-space: pre-line">{{ item.remarque }}</span></md-table-cell>
                                 </md-table-row>
                             </md-table>
-                        </div>
-                        <div class="md-layout-item md-size-30">
-                            <md-card>
-                                <md-card-header>
-                                    <div class="md-title">Drag & drop</div>
-                                </md-card-header>
-                                <md-card-content>
-                                    <div class="dragdrop">
-                                        <drop class="drop" @drop="handleDrop" style="height: 200px !important; margin:auto;">
-                                            Glissez des documents ici pour les ajouter à la liste
-                                            <br>
-                                            puis appuyez sur ENREGISTRER pour les charger
-                                            <br><br>
-                                            <md-icon class="md-size-5x">cloud_upload</md-icon>
-                                        </drop>
-                                    </div>
-                                    <div v-if="droppedFiles.length > 0">
-                                        <ul>
-                                            <li v-for="item in droppedFiles">{{ item.name }} ({{ Math.ceil(item.size/1000) }} ko) <button @click="removeItem(item)" class="md-dense">supprimer</button></li>
-                                        </ul>
-                                        <md-button @click="saveFiles" 
-                                            style="float: right; margin-bottom: 15px;" 
-                                            class="md-dense md-raised md-primary">enregistrer</md-button>
-                                    </div>
-                                    <div v-else>
-                                        <em>Aucun document</em>
-                                    </div>
-                                </md-card-content>
-                            </md-card>
-                        </div>
-                    </div>
-                </md-card-content>
+                        </md-card-content>
+                    </md-card-expand-content>
+                </md-card-expand>
             </md-card>
-        
+
+
+            <md-card>
+                <md-card-header>
+                    <div class="md-title">
+                        <md-card-expand-trigger>
+                            <md-button class="md-icon-button">
+                                <md-icon>keyboard_arrow_down</md-icon>
+                            </md-button>
+                        </md-card-expand-trigger>
+                        Documents ({{ documents.length }})
+                    </div>
+                </md-card-header>
+                <md-card-expand>
+                    <md-card-expand-content>
+                        <md-card-content>
+                            <div class="md-layout md-gutter md-alignment-top-space-between">
+                                <div class="md-layout-item md-size-65">
+                                    <md-table v-model="documents" md-sort="filename" md-sort-order="asc" md-fixed-header md-card>
+                                        <md-table-empty-state md-label="Aucun document"></md-table-empty-state>
+
+                                        <md-table-row slot="md-table-row" slot-scope="{ item }">
+                                            <md-table-cell style="width: 40%;" md-label="Fichier" md-sort-by="filename">{{ item.filename }}</md-table-cell>
+                                            <md-table-cell style="width: 15%;" md-label="Taille" md-sort-by="size" md-numeric>{{ item.size }}</md-table-cell>
+                                            <md-table-cell style="width: 25%;" md-label="Modification" md-sort-by="modification_sort">{{ item.modification }}</md-table-cell>
+                                            <md-table-cell style="width: 20%;" md-label="Actions">
+                                                <md-button class="md-icon-button md-dense md-primary" @click="downloadFile(item)">
+                                                    <md-icon>save_alt</md-icon>
+                                                </md-button>
+                                            </md-table-cell>
+                                        </md-table-row>
+                                    </md-table>
+                                </div>
+                                <div class="md-layout-item md-size-30">
+                                    <md-card>
+                                        <md-card-header>
+                                            <div class="md-title">Drag & drop</div>
+                                        </md-card-header>
+                                        <md-card-content>
+                                            <div class="dragdrop">
+                                                <drop class="drop" @drop="handleDrop" style="height: 200px !important; margin:auto;">
+                                                    Glissez des documents ici pour les ajouter à la liste
+                                                    <br>
+                                                    puis appuyez sur ENREGISTRER pour les charger
+                                                    <br><br>
+                                                    <md-icon class="md-size-5x">cloud_upload</md-icon>
+                                                </drop>
+                                            </div>
+                                            <div v-if="droppedFiles.length > 0">
+                                                <ul>
+                                                    <li v-for="item in droppedFiles">{{ item.name }} ({{ Math.ceil(item.size/1000) }} ko) <button @click="removeItem(item)" class="md-dense">supprimer</button></li>
+                                                </ul>
+                                                <md-button @click="saveFiles"
+                                                    style="float: right; margin-bottom: 15px;"
+                                                    class="md-dense md-raised md-primary">enregistrer</md-button>
+                                            </div>
+                                            <div v-else>
+                                                <em>Aucun document</em>
+                                            </div>
+                                        </md-card-content>
+                                    </md-card>
+                                </div>
+                            </div>
+                        </md-card-content>
+                    </md-card-expand-content>
+                </md-card-expand>
+            </md-card>
+
             <preavisEditComments :preavis_id="affaire.preavis_id" />
             <preavisEditDecision ref="ped" :preavis_id="affaire.preavis_id" :showAddDecision="affaire.preavis_etape === 'externe'" />
         </div>

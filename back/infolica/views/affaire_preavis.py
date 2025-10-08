@@ -168,7 +168,7 @@ def preavis_delete_view(request):
 #    ROUTES POUR LES SERVICES EXTERNES
 # ====================================================================
 
-def strongAuthentication(request, preavis_id):
+def strongAuthentication(request, preavis_id=None):
     # Check connected
     if check_connected(request, [request.registry.settings['service_mo'].replace(' ', '')]):
         operateur = Utils.getOperateurFromUser(request)
@@ -180,17 +180,17 @@ def strongAuthentication(request, preavis_id):
     # get service from user
     operateur = Utils.getOperateurFromUser(request)
     if operateur.service_id is None:
-         exc.HTTPForbidden(detail="Opérateur non autorisé à accéder à ce contenu")
+        raise exc.HTTPForbidden(detail="Opérateur non autorisé à accéder à ce contenu")
 
     if preavis_id is None:
-        exc.HTTPInternalServerError(detail="L'identidifiant du préavis est manquant")
+        raise exc.HTTPInternalServerError(detail="L'identidifiant du préavis est manquant")
 
     testPreavis = request.dbsession.query(Preavis).filter(
         Preavis.service_id == operateur.service_id
     ).first()
 
     if testPreavis is None:
-        exc.HTTPForbidden(detail="Aucune demande de préavis pour ce service")
+        raise exc.HTTPForbidden(detail="Aucune demande de préavis pour ce service")
 
     return operateur
 
@@ -1056,3 +1056,58 @@ def preavis_print_view(request):
     response.content_type = 'application/pdf'
     response.content_type_params = params
     return response
+
+
+@view_config(route_name='service_externe_affaire_preavis_tous', request_method='GET', renderer='json')
+def service_externe_affaire_preavis_tous(request):
+    """
+    GET all preavis in one sepecified affaire
+    """
+
+    preavis_id = request.params['preavis_id'] if 'preavis_id' in request.params else None
+    strongAuthentication(request, preavis_id)
+
+    affaire_id = request.params['affaire_id'] if 'affaire_id' in request.params else None
+
+    results = request.dbsession.query(
+        Preavis.id,
+        Preavis.affaire_id,
+        Preavis.service_id,
+        Service.abreviation,
+        Preavis.preavis_type_id,
+        PreavisType.nom,
+        Preavis.operateur_sgrf_id,
+        # Preavis.operateur_service_id,
+        Preavis.date_demande,
+        Preavis.date_reponse,
+        Preavis.remarque,
+        Preavis.etape,
+    ).filter(
+        Preavis.affaire_id == affaire_id
+    ).join(
+        Service, Service.id == Preavis.service_id
+    ).join(
+        PreavisType, PreavisType.id == Preavis.preavis_type_id
+    ).order_by(
+        Preavis.date_demande.asc(),
+        Preavis.date_reponse.asc()
+    ).all()
+
+    data = []
+    for res in results:
+        data.append({
+            "id": res[0],
+            "affaire_id": res[1],
+            "service_id": res[2],
+            "service": res[3],
+            "preavis_type_id": res[4],
+            "preavis_type": res[5],
+            "operateur_sgrf_id": res[6],
+            # "operateur_service_id": res[],
+            "date_demande": Utils.date_isoformat(res[7]),
+            "date_reponse": Utils.date_isoformat(res[8]),
+            "remarque": res[9].replace("\n\nnull", ""),
+            "etape": res[10],
+        })
+
+    return data

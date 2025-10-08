@@ -58,6 +58,7 @@ export default {
       markerStyle: null,
       preavisDecisionReady: false,
       service_edition_allowed: false,
+      preavisList: [],
     };
   },
 
@@ -144,11 +145,11 @@ export default {
     async saveFiles() {
       let formData = new FormData();
       formData.append('affaire_id', this.affaire.id);
-      
+
       for( let i = 0; i < this.droppedFiles.length; i++ ){
         formData.append('files[' + i + ']', this.droppedFiles[i]);
       }
-      
+
       this.$http.post(
         process.env.VUE_APP_API_URL + process.env.VUE_APP_PREAVIS_POST_FILE_BY_AFFAIRE_ID_ENDPOINT,
         formData,
@@ -244,7 +245,7 @@ export default {
           pinchRotate: false,
           mouseWheelZoom: false
         });
-    
+
         this.map = new Map({
           layers: layers,
           target: document.getElementById("mapDiv"),
@@ -275,7 +276,7 @@ export default {
               ? [center.x, center.y]
               : process.env.VUE_APP_MAP_DEFAULT_CENTER
           );
-      }    
+      }
     },
 
     /**
@@ -336,7 +337,7 @@ export default {
          });
 
     },
-    
+
     /**
      * Add marker
      */
@@ -353,11 +354,29 @@ export default {
         this.view.setZoom(process.env.VUE_APP_MAP_DEFAULT_AFFAIRE_ZOOM);
       }
     },
+
+    /** GET PREAVIS OTHER SERVICES */
+    async getOtherPreavis() {
+      this.$http.get(process.env.VUE_APP_API_URL + process.env.VUE_APP_SERVICE_EXTERNE_AFFAIRE_PREAVIS_TOUS_ENDPOINT + "?affaire_id=" + this.affaire.id + "&preavis_id=" + this.$route.params.id,
+        {
+          withCredentials: true,
+          headers: { Accept: "application/json" }
+        }
+      ).then(response => {
+        if (response && response.data) {
+          this.preavisList = response.data.filter(x => x.id !== Number(this.$route.params.id));
+        }
+      }).catch(err => handleException(err));
+    }
+
+
+
   },
 
   mounted: function() {
     this.getAffaire().then(() => {
       this.getDocuments();
+      this.getOtherPreavis();
 
       // map
       let center = {x: this.affaire.coord_e, y: this.affaire.coord_n}

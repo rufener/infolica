@@ -18,6 +18,11 @@ unite_ppe_list = ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N
 
 
 class Utils(object):
+    @classmethod
+    def date_isoformat(cls, date_):
+        if isinstance(date_, (datetime, date)):
+            return date_.isoformat()
+        return date_
 
     @classmethod
     def serialize_one(cls, _query):
@@ -31,10 +36,7 @@ class Utils(object):
         item = {}
         for n in d.keys():
             if n != "_sa_instance_state" and n != "geom":
-                if isinstance(d[n], (datetime, date)):
-                    item[n] = d[n].isoformat()
-                else:
-                    item[n] = d[n]
+                item[n] = cls.date_isoformat(d[n])
 
         return item
 
@@ -52,10 +54,7 @@ class Utils(object):
             item = {}
             for n in d.keys():
                 if n != "_sa_instance_state" and n != "geom":
-                    if isinstance(d[n], (datetime, date)):
-                        item[n] = d[n].isoformat()
-                    else:
-                        item[n] = d[n]
+                    item[n] = cls.date_isoformat(d[n])
             master.append(item)
         return master
 
