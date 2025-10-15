@@ -5,16 +5,19 @@
 <script>
 import { handleException } from "@/services/exceptionsHandler";
 import PreavisExtComment from "@/components/Utils/PreavisExtComment/PreavisExtComment.vue";
+import PreavisExternesEditOtherPreavis from "@/components/PreavisExternes/PreavisExternesEditOtherPreavis.vue";
 
 
 export default {
   name: "PreavisEditDecision",
   props: {
     preavis_id: Number,
-    showAddDecision: Boolean
+    showAddDecision: Boolean,
+    affaire_id: Number,
   },
   components: {
-    PreavisExtComment
+    PreavisExtComment,
+    PreavisExternesEditOtherPreavis,
   },
   data() {
     return {
@@ -72,7 +75,7 @@ export default {
       ).then(response => {
         if (response && response.data) {
           this.decisions_liste = response.data;
-          
+
           //get max version of decision
           this.decisions_liste.forEach(x => {
             this.lastDecisionVersion = x.version > this.lastDecisionVersion? x.version: this.lastDecisionVersion;
@@ -99,7 +102,7 @@ export default {
     },
 
 
-    
+
     // get Decision draft
     async getDecisionDraft() {
       this.$http.get(process.env.VUE_APP_API_URL + process.env.VUE_APP_PREAVIS_DECISION_BY_PREAVIS_ID_ENDPOINT + "?preavis_id=" + this.preavis_id,
@@ -117,8 +120,8 @@ export default {
       ).catch(err => handleException(err))
       .finally(() => this.getGlossaire());
     },
-    
-    
+
+
     // saveDecision
     async saveDecision(definitif=false) {
       let formData = new FormData();
@@ -151,7 +154,7 @@ export default {
             }
           )
         }
-  
+
         req.then((response) => resolve(response)
         ).catch(err => reject(err));
       });

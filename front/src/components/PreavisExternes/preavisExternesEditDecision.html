@@ -4,6 +4,10 @@
             <div class="md-title">Préavis</div>
         </md-card-header>
         <md-card-content>
+
+            <PreavisExternesEditOtherPreavis :preavis_id="preavis_id" :affaire_id="affaire_id"></PreavisExternesEditOtherPreavis>
+            <br>
+
             <div v-if="decisions_liste.length > 0">
                 <table class="tg">
                     <thead>

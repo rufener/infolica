@@ -58,7 +58,6 @@ export default {
       markerStyle: null,
       preavisDecisionReady: false,
       service_edition_allowed: false,
-      preavisList: [],
     };
   },
 
@@ -355,28 +354,11 @@ export default {
       }
     },
 
-    /** GET PREAVIS OTHER SERVICES */
-    async getOtherPreavis() {
-      this.$http.get(process.env.VUE_APP_API_URL + process.env.VUE_APP_SERVICE_EXTERNE_AFFAIRE_PREAVIS_TOUS_ENDPOINT + "?affaire_id=" + this.affaire.id + "&preavis_id=" + this.$route.params.id,
-        {
-          withCredentials: true,
-          headers: { Accept: "application/json" }
-        }
-      ).then(response => {
-        if (response && response.data) {
-          this.preavisList = response.data.filter(x => x.id !== Number(this.$route.params.id));
-        }
-      }).catch(err => handleException(err));
-    }
-
-
-
   },
 
   mounted: function() {
     this.getAffaire().then(() => {
       this.getDocuments();
-      this.getOtherPreavis();
 
       // map
       let center = {x: this.affaire.coord_e, y: this.affaire.coord_n}

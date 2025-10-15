@@ -85,40 +85,6 @@
                                 <md-icon>keyboard_arrow_down</md-icon>
                             </md-button>
                         </md-card-expand-trigger>
-                        Autres préavis ({{ preavisList.length }})
-                    </div>
-                </md-card-header>
-
-                <md-card-expand>
-                    <md-card-expand-content>
-                        <md-card-content>
-                            <md-table v-model="preavisList" md-fixed-header md-card>
-                                <md-table-empty-state md-label="Aucun préavis"></md-table-empty-state>
-
-                                <md-table-row slot="md-table-row" slot-scope="{ item }">
-                                    <md-table-cell md-label="id" md-sort-by="id" v-if="false">{{ item.id }}</md-table-cell>
-                                    <md-table-cell md-label="id" md-sort-by="id" >{{ item.id }}</md-table-cell>
-                                    <md-table-cell md-label="Service" md-sort-by="service" style="min-width: 100px;"><div v-if="item.unread_remarks > 0"><md-badge :md-content="item.unread_remarks" md-dense><span style="padding-right: 20px;">{{ item.service }}</span></md-badge></div><div v-else>{{ item.service }}</div></md-table-cell>
-                                    <md-table-cell md-label="Demande" md-sort-by="date_demande" style="min-width: 100px;">{{ item.date_demande | formatDate }}</md-table-cell>
-                                    <md-table-cell md-label="Réponse" md-sort-by="date_reponse" style="min-width: 100px;">{{ item.date_reponse | formatDate }}</md-table-cell>
-                                    <md-table-cell md-label="Préavis" md-sort-by="preavis_type" style="min-width: 100px;">{{ item.preavis_type }}</md-table-cell>
-                                    <md-table-cell md-label="Remarque" style="min-width: 1000px;"><span style="white-space: pre-line">{{ item.remarque }}</span></md-table-cell>
-                                </md-table-row>
-                            </md-table>
-                        </md-card-content>
-                    </md-card-expand-content>
-                </md-card-expand>
-            </md-card>
-
-
-            <md-card>
-                <md-card-header>
-                    <div class="md-title">
-                        <md-card-expand-trigger>
-                            <md-button class="md-icon-button">
-                                <md-icon>keyboard_arrow_down</md-icon>
-                            </md-button>
-                        </md-card-expand-trigger>
                         Documents ({{ documents.length }})
                     </div>
                 </md-card-header>
@@ -178,7 +144,7 @@
             </md-card>
 
             <preavisEditComments :preavis_id="affaire.preavis_id" />
-            <preavisEditDecision ref="ped" :preavis_id="affaire.preavis_id" :showAddDecision="affaire.preavis_etape === 'externe'" />
+            <preavisEditDecision ref="ped" :preavis_id="affaire.preavis_id" :showAddDecision="affaire.preavis_etape === 'externe'" :affaire_id="affaire.id" />
         </div>
     </div>
 
