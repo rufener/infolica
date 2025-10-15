@@ -24,7 +24,7 @@
                             <md-table-cell md-label="Service" md-sort-by="service" style="min-width: 100px;"><div v-if="item.unread_remarks > 0"><md-badge :md-content="item.unread_remarks" md-dense><span style="padding-right: 20px;">{{ item.service }}</span></md-badge></div><div v-else>{{ item.service }}</div></md-table-cell>
                             <md-table-cell md-label="Demande" md-sort-by="date_demande" style="min-width: 100px;">{{ item.date_demande | formatDate }}</md-table-cell>
                             <md-table-cell md-label="Réponse" md-sort-by="date_reponse" style="min-width: 100px;">{{ item.date_reponse | formatDate }}</md-table-cell>
-                            <md-table-cell md-label="Préavis" md-sort-by="preavis_type" style="min-width: 100px;">{{ item.preavis_type }}</md-table-cell>
+                            <md-table-cell md-label="Préavis" md-sort-by="preavis_type" style="min-width: 100px;"><md-icon :style="item.icon_status_style">{{ item.icon_status }}</md-icon> {{ item.preavis_type }}</md-table-cell>
                             <md-table-cell md-label="Remarque" style="min-width: 1000px;"><span style="white-space: pre-line">{{ item.remarque }}</span></md-table-cell>
                         </md-table-row>
                     </md-table>
