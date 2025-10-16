@@ -57,7 +57,7 @@ export default {
         .then(response => {
           if (response.data) {
             let tmp = response.data;
-            
+
             // set date format and sort by date
             let max_next_datetime_sort = 0;
             tmp.forEach(x => {
@@ -65,8 +65,30 @@ export default {
               if (max_next_datetime_sort < x.next_datetime_sort) {
                 max_next_datetime_sort = x.next_datetime_sort;
               }
+              x.datetime = x.datetime? moment(new Date(x.datetime)).format(process.env.VUE_APP_DATEFORMAT_CLIENT): null;
               x.next_datetime = x.next_datetime? moment(new Date(x.next_datetime)).format(process.env.VUE_APP_DATEFORMAT_CLIENT): null;
-            });
+
+              // custom realisation's period to show
+              if (x.etape_priorite === 1) {
+                if (x.datetime && x.next_datetime) {
+                  x.realisation_period_txt = x.datetime + " - " + x.next_datetime;
+                } else {
+                  if (x.etape_id) {
+                    if (x.etape_id === Number(process.env.VUE_APP_FIN_PROCESSUS_ID)) {
+                      x.realisation_period_txt = x.datetime;
+                    } else {
+                      x.realisation_period_txt = x.datetime + " - ...";
+                    }
+                  }
+                  else {
+                    x.realisation_period_txt = x.next_datetime;
+                  }
+                }
+              } else {
+                // priority 2
+                x.realisation_period_txt = x.datetime;
+              }
+              });
 
             let primaryKeys = [];
             tmp.forEach(x => {
@@ -75,7 +97,7 @@ export default {
                 x.id = 0;
               }
               primaryKeys.push(x.id);
-              
+
               // set sort by date value where it is null
               if (x.next_datetime_sort === 0) {
                 x.next_datetime_sort = max_next_datetime_sort + 1;

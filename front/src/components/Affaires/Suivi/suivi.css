@@ -3,10 +3,6 @@
     float: left;
 }
 
-.suivi .md-table {
-    width: fit-content;
-}
-
 .suivi .newEtapeBtn {
     right: 25px;
     position: absolute;
