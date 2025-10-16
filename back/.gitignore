@@ -131,11 +131,7 @@ venv.bak/
 .vscode/*
 
 # ini files
-/development.ini
-/production.ini
-/prepub.ini
-/local.ini
-/test.ini
+/*.ini
 
 # alembic versions
 infolica/alembic/versions/old
