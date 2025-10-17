@@ -44,6 +44,11 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    # For testing, sqlalchemy.url is overridden
+    if config.get_main_option('sqlalchemy.url'):
+        settings = {
+            'sqlalchemy.url': config.get_main_option('sqlalchemy.url')
+        }
     engine = engine_from_config(settings, prefix='sqlalchemy.')
 
     connection = engine.connect()

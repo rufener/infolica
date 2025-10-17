@@ -207,6 +207,11 @@ script_location = infolica/alembic
 file_template = %%(year)d%%(month).2d%%(day).2d_%%(rev)s
 # file_template = %%(rev)s_%%(slug)s
 
+[testing]
+# Read by conftest.py to override some settings during tests
+sqlalchemy.url = postgresql://postgres:password@localhost:5432/infolica_test
+preserve_test_db = true
+
 [server:main]
 use = egg:waitress#main
 listen = localhost:6543
