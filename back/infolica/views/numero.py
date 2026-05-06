@@ -129,6 +129,10 @@ def numeros_search_view(request):
     matDiff = False
     if 'matDiff' in params:
         matDiff = True if params['matDiff'] == 'true' else False
+    if '%numero' in params and params['%numero'] is not None:
+        vumeros_sort = VNumeros.numero.asc()
+    else:
+        vumeros_sort = VNumeros.numero.desc()
 
     # Set conditions
     conditions = Utils.get_search_conditions(VNumeros, params, ignore_params=["matDiff"])
@@ -136,7 +140,7 @@ def numeros_search_view(request):
     # filter by conditions
     query = request.dbsession.query(VNumeros).order_by(
         VNumeros.cadastre,
-        VNumeros.numero.desc()
+        vumeros_sort
     ).filter(*conditions)
 
     query = query.filter(VNumeros.type_numero_id <= 4)
