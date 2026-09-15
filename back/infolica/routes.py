@@ -227,3 +227,5 @@ def includeme(config):
     config.add_route('service_externe_glossaire', '/infolica/api/service_externe_glossaire')
     #Roles
     config.add_route('user_roles', '/infolica/api/user_roles')
+    #External services
+    config.add_route('external_document', '/infolica/api/webservices/document')

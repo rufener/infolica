@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, Float, Text, String, Date, DateTime, Boolean, ARRAY, ForeignKey, UniqueConstraint, Table, text, Uuid
+from sqlalchemy import Column, Integer, BigInteger, Float, Text, String, Date, DateTime, Interval, Boolean, ARRAY, ForeignKey, UniqueConstraint, Table, text, Uuid
 
 from sqlalchemy.orm import relationship
 
@@ -1055,10 +1055,29 @@ class ControleEtapeTypeAffaire(Base):
     controle_etape_nom = Column(String(40), ForeignKey(ControleEtape.nom), primary_key=True)
 
 
+# ======================== SCHEMA WEBSERVICES ========================
+
+class AccessibiliteService(Base):
+    __tablename__ = "accessibilite_service"
+    __table_args__ = {"schema": "webservices"}
+    id = Column(BigInteger, primary_key=True)
+    service = Column(Text, nullable=False)
+    relpath = Column(Text, nullable=False)
+    interval = Column(Interval, nullable=False)
+
+
+class AccessibiliteAffaire(Base):
+    __tablename__ = "accessibilite_affaire"
+    __table_args__ = {"schema": "webservices"}
+    affaire_id = Column(BigInteger, ForeignKey(Affaire.id), primary_key=True)
+    service_id = Column(BigInteger, ForeignKey(AccessibiliteService.id), primary_key=True)
+    token = Column(Text)
+    token_set = Column(Date, nullable=False)
+
+
 # ======================== VUES ========================
 # Ajouter l'information 'info': dict(is_view=True) aux vues
 # pour qu'elles ne soient pas prises en compte dans les migrations par Alembic
-
 
 class VNumeros(Base):
     __tablename__ = "v_numeros"
