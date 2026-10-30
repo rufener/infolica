@@ -9,7 +9,9 @@ from infolica.scripts.authentication import check_connected
 import os
 
 from datetime import datetime
-import urllib
+import hmac
+import urllib.parse
+import uuid
 
 
 ###########################################################
@@ -120,26 +122,38 @@ def download_affaire_document_from_external_view(request):
     affaire_id = request.params["affaire_id"]
 
     affaire = request.dbsession.query(Affaire).filter(Affaire.id == affaire_id).first()
-    uuid = request.params["uuid"] if "uuid" in request.params else None
+    token = request.params["uuid"] if "uuid" in request.params else None
 
-    # Check token
-    if not str(uuid) == str(affaire.uuid):
+    # Check token: refuse if affaire does not exist, has no uuid, or token is missing/invalid
+    # (same response in every case to avoid revealing which affaires exist)
+    try:
+        token = str(uuid.UUID(token))
+    except (TypeError, ValueError):
+        token = None
+
+    if affaire is None or affaire.uuid is None or token is None or not hmac.compare_digest(token, str(affaire.uuid)):
         raise exc.HTTPForbidden()
 
+    if affaire.chemin is None:
+        raise exc.HTTPNotFound("Specified path does not exist.")
+
     affaires_directory = request.registry.settings["affaires_directory"]
-    relpath = request.params["relpath"]
-    filename = request.params["filename"]
-    affaire_chemin = affaire.chemin
+    affaire_path = os.path.join(affaires_directory, affaire.chemin)
+    relpath = request.params["relpath"] if "relpath" in request.params else ""
+    filename = os.path.basename(request.params["filename"] if "filename" in request.params else "")
 
-    file_path = os.path.normcase(os.path.join(affaires_directory, affaire_chemin, relpath, filename))
-    folder_path = os.path.exists(os.path.dirname(file_path))
+    file_path = os.path.normcase(os.path.join(affaire_path, relpath, filename))
 
-    if not folder_path:
-        raise exc.HTTPBadRequest("Specified path does not exist.")
+    # The file must stay inside the affaire folder, itself inside affaires_directory
+    if not Utils.is_path_inside(affaires_directory, affaire_path) or not Utils.is_path_inside(affaire_path, file_path):
+        raise exc.HTTPBadRequest("Specified path is not allowed.")
 
-    response = FileResponse(file_path, request=request, cache_max_age=86400)
+    if not os.path.isfile(file_path):
+        raise exc.HTTPNotFound("Specified path does not exist.")
+
+    response = FileResponse(file_path, request=request, cache_max_age=0)
     headers = response.headers
     headers["Content-Type"] = "application/download"
-    headers["Accept-Ranges"] = "bite"
+    headers["Accept-Ranges"] = "bytes"
     headers["Content-Disposition"] = "attachment;filename=" + urllib.parse.quote(filename)
     return response
