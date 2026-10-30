@@ -22,6 +22,7 @@ import json
 from datetime import datetime, timedelta
 import time
 import re
+import urllib.parse
 
 ###########################################################
 # AFFAIRE
@@ -669,23 +670,44 @@ def courrier_retablissement_pfp_view(request):
     return {'filename': filename}
 
 
+def _get_temporary_docx_path(request, filename):
+    """
+    Return the path of a generated .docx inside temporary_directory, or raise if the name is invalid
+    """
+    temporary_directory = os.path.realpath(request.registry.settings["temporary_directory"])
+    filename = os.path.basename(filename or "")
+
+    if not filename.lower().endswith(".docx"):
+        raise exc.HTTPBadRequest("Nom de fichier invalide")
+
+    file_path = os.path.realpath(os.path.join(temporary_directory, filename))
+
+    # the resolved file must be directly inside temporary_directory
+    if os.path.dirname(file_path) != temporary_directory:
+        raise exc.HTTPBadRequest("Nom de fichier invalide")
+
+    return file_path
+
+
 @view_config(route_name='courrier_affaire', request_method='GET')
 @view_config(route_name='courrier_affaire_s', request_method='GET')
 def download_courrier_affaire_view(request):
     """
     Send file
     """
-    settings = request.registry.settings
-    filename = request.params['filename']
-    temporary_directory = settings["temporary_directory"]
-    file_path = os.path.join(temporary_directory, filename)
+    # Check connected
+    if not check_connected(request):
+        raise exc.HTTPForbidden()
 
-    if os.path.exists(file_path):
-        response = FileResponse(file_path, request=request, cache_max_age=86400)
+    file_path = _get_temporary_docx_path(request, request.params.get('filename'))
+
+    if os.path.isfile(file_path):
+        filename = os.path.basename(file_path)
+        response = FileResponse(file_path, request=request, cache_max_age=0)
         headers = response.headers
         headers['Content-Type'] = 'application/download'
-        headers['Accept-Ranges'] = 'bite'
-        headers['Content-Disposition'] = 'attachment;filename=' + filename
+        headers['Accept-Ranges'] = 'bytes'
+        headers['Content-Disposition'] = 'attachment;filename=' + urllib.parse.quote(filename)
 
         return response
 
@@ -699,12 +721,13 @@ def delete_courrier_affaire_view(request):
     """
     Supprimer le fichier une fois téléchargé
     """
-    settings = request.registry.settings
-    filename = request.params['filename']
-    temporary_directory = settings["temporary_directory"]
-    file_path = os.path.join(temporary_directory, filename)
+    # Check connected
+    if not check_connected(request):
+        raise exc.HTTPForbidden()
 
-    if os.path.exists(file_path):
+    file_path = _get_temporary_docx_path(request, request.params.get('filename'))
+
+    if os.path.isfile(file_path):
         time.sleep(1)
         os.remove(file_path)
         return "ok"
