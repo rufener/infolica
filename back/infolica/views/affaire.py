@@ -593,6 +593,10 @@ def courrier_affaire_view(request):
     """
     Create  file
     """
+    # Check connected
+    if not check_connected(request):
+        raise exc.HTTPForbidden()
+
     # Get request params
     template = request.params['template']
     values = request.params['values']
@@ -610,8 +614,12 @@ def courrier_retablissement_pfp_view(request):
     """
     Create  file
     """
+    # Check connected
+    if not check_connected(request):
+        raise exc.HTTPForbidden()
+
     # Get request params
-    facture_id = request.params['facture_id'] if 'facture_id' in request.params else None
+    facture_id =request.params['facture_id'] if 'facture_id' in request.params else None
     template = 'RetablissementPointsFixes'
     output_file_name = 'Lettre_retablissement_pfp'
 

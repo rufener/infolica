@@ -7,11 +7,13 @@ from infolica.models.models import Preavis, PreavisRemarque, Plan
 from infolica.models.models import Numero, AffaireNumero, AffaireEtape
 from infolica.models.models import Role, ReservationNumerosMO, Operateur
 from infolica.scripts.authentication import get_user_functions, check_connected
+import pyramid.httpexceptions as exc
 
 from shutil import copytree, ignore_patterns
 from docxtpl import DocxTemplate, RichText
 import json
 import os
+import re
 import time
 
 unite_ppe_list = ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
@@ -296,6 +298,14 @@ class Utils(object):
         settings = request.registry.settings
         mails_templates_directory = settings["mails_templates_directory"]
         temporary_directory = settings["temporary_directory"]
+
+        # Only allow plain names (no path separators, no dots) for template and output file
+        for name in [template, output_file_name]:
+            if not isinstance(name, str) or not re.fullmatch(r"[\w-]+", name):
+                raise exc.HTTPBadRequest("Nom de fichier invalide")
+
+        if not os.path.isfile(os.path.join(mails_templates_directory, template + ".docx")):
+            raise exc.HTTPBadRequest("Le modèle {} n'existe pas".format(template))
 
         # Set output file name
         date_time = datetime.now().strftime("%Y%m%d%H%M%S")
