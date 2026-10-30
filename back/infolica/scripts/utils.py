@@ -294,18 +294,46 @@ class Utils(object):
         return unread
 
     @classmethod
+    def check_file_name(cls, name):
+        """
+        Raise if name is not a plain file name (no path separators, no dots)
+        """
+        if not isinstance(name, str) or not re.fullmatch(r"[\w-]+", name):
+            raise exc.HTTPBadRequest("Nom de fichier invalide")
+
+    @classmethod
+    def get_template_path(cls, request, template):
+        """
+        Return the path of the .docx template, or raise if the name is invalid or the template does not exist
+        """
+        cls.check_file_name(template)
+
+        template_path = os.path.join(request.registry.settings["mails_templates_directory"], template + ".docx")
+        if not os.path.isfile(template_path):
+            raise exc.HTTPBadRequest("Le modèle {} n'existe pas".format(template))
+
+        return template_path
+
+    @classmethod
+    def is_path_inside(cls, base_path, path):
+        """
+        Return True if path, once resolved, is base_path or one of its descendants
+        """
+        base_path = os.path.normcase(os.path.realpath(base_path))
+        path = os.path.normcase(os.path.realpath(path))
+        try:
+            return os.path.commonpath([base_path, path]) == base_path
+        except ValueError:
+            # different drives on Windows
+            return False
+
+    @classmethod
     def generate_file_from_template(cls, request, template, data, output_file_name, timeout=5):
         settings = request.registry.settings
-        mails_templates_directory = settings["mails_templates_directory"]
         temporary_directory = settings["temporary_directory"]
 
-        # Only allow plain names (no path separators, no dots) for template and output file
-        for name in [template, output_file_name]:
-            if not isinstance(name, str) or not re.fullmatch(r"[\w-]+", name):
-                raise exc.HTTPBadRequest("Nom de fichier invalide")
-
-        if not os.path.isfile(os.path.join(mails_templates_directory, template + ".docx")):
-            raise exc.HTTPBadRequest("Le modèle {} n'existe pas".format(template))
+        template_path = cls.get_template_path(request, template)
+        cls.check_file_name(output_file_name)
 
         # Set output file name
         date_time = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -324,7 +352,7 @@ class Utils(object):
                 data[key] = RichText(data[key])
 
         # Ouverture du document template
-        doc = DocxTemplate(os.path.join(mails_templates_directory, template + ".docx"))
+        doc = DocxTemplate(template_path)
 
         # Replace values by keywords and save
         doc.render(data)
