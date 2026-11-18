@@ -413,7 +413,7 @@ def service_externe_documents_view(request):
         affaire_path = affaires_directory / str(affaire_chemin) / rel_path
 
         if not os.path.exists(affaire_path):
-            break
+            continue
 
 
         for root, _, files in os.walk(affaire_path, topdown=False):
