@@ -277,7 +277,6 @@ export default {
         ).then((response) => {
           if (response && response.data) {
             this.form_general.id = response.data.emolument_affaire_id;
-            this.postEmolumentAffaireRepartition(response.data.emolument_affaire_id);
             this.$root.$emit("ShowMessage", "L'émolument a bien été enregistré");
             resolve(response);
           }
@@ -513,6 +512,7 @@ export default {
 
           Promise.all(promises).then(() => {
             this.showEmolumentsDialog = false;
+            this.postEmolumentAffaireRepartition(this.form_general.id);
             this.fixEmolumentDefinitively(this.form_general.id, true);
             this.$root.$emit("searchAffaireFactures");
             this.$root.$emit("ShowMessage", successMessage);
